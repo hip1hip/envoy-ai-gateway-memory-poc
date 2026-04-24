@@ -1,0 +1,37 @@
+Name:         envoy-ai-gateway-basic
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
+API Version:  aigateway.envoyproxy.io/v1alpha1
+Kind:         AIGatewayRoute
+Metadata:
+  Creation Timestamp:  2026-04-24T06:58:20Z
+  Finalizers:
+    aigateway.envoyproxy.io/finalizer
+  Generation:        1
+  Resource Version:  766
+  UID:               023627e5-7444-4151-9941-60322b7c5ef8
+Spec:
+  Parent Refs:
+    Group:  gateway.networking.k8s.io
+    Kind:   Gateway
+    Name:   envoy-ai-gateway-basic
+  Rules:
+    Backend Refs:
+      Name:      envoy-ai-gateway-basic-testupstream
+      Priority:  0
+      Weight:    1
+    Matches:
+      Headers:
+        Name:         x-ai-eg-model
+        Type:         Exact
+        Value:        some-cool-self-hosted-model
+    Models Owned By:  Envoy AI Gateway
+Status:
+  Conditions:
+    Last Transition Time:  2026-04-24T06:58:21Z
+    Message:               AI Gateway Route reconciled successfully
+    Reason:                ReconciliationSucceeded
+    Status:                True
+    Type:                  Accepted
+Events:                    <none>

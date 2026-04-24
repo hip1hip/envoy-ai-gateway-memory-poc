@@ -50,13 +50,22 @@
 
 ### v0.5 migration
 
-**계획 / 검토 필요**
+**검증 완료**
 
-- Envoy Gateway v1.6.x 설치 검증
-- Envoy AI Gateway v0.5.0 설치 검증
-- v0.5 manifest 스키마 확인
-- `schema.version`에서 `schema.prefix`로 전환 검토
-- `GatewayConfig` 기반 ExtProc 설정 검토
+- 별도 Kind 클러스터 `aigw-v05` 생성
+- Kubernetes v1.32.0 노드 Ready
+- Envoy Gateway v1.6.0 설치
+- Envoy AI Gateway v0.5.0 CRD / Controller 설치
+- v0.4 basic source manifest를 v0.5 환경에 적용
+- AIGatewayRoute Accepted
+- AIServiceBackend Accepted
+- port-forward 기반 `/v1/chat/completions` HTTP 200 OK 확인
+- basic scenario 기준 v0.4 to v0.5 manifest migration은 no-op으로 확인
+
+**검토 필요**
+
+- `GatewayConfig` 기반 ExtProc env/resources 실제 반영 검증
+- `schema.prefix` 기반 provider/backend manifest 작성 및 검증
 - Body Mutation / Header Mutation 동작 검증
 
 ### Memory PoC
@@ -77,6 +86,7 @@
 - [Memory PoC 설계 초안](docs/03-memory-poc-design.md)
 - [Troubleshooting](docs/99-troubleshooting.md)
 - [v0.4 baseline 결과 로그](logs/v04-baseline-result.md)
+- [v0.5 migration 결과 로그](logs/v05-migration-result.md)
 
 ## 빠른 시작 가이드
 

@@ -1,0 +1,9 @@
+gatewayclass.gateway.networking.k8s.io/envoy-ai-gateway-basic unchanged
+gateway.gateway.networking.k8s.io/envoy-ai-gateway-basic configured
+clienttrafficpolicy.gateway.envoyproxy.io/client-buffer-limit unchanged
+aigatewayroute.aigateway.envoyproxy.io/envoy-ai-gateway-basic configured
+aiservicebackend.aigateway.envoyproxy.io/envoy-ai-gateway-basic-testupstream unchanged
+backend.gateway.envoyproxy.io/envoy-ai-gateway-basic-testupstream unchanged
+deployment.apps/envoy-ai-gateway-basic-testupstream unchanged
+service/envoy-ai-gateway-basic-testupstream unchanged
+envoyproxy.gateway.envoyproxy.io/envoy-ai-gateway-basic unchanged

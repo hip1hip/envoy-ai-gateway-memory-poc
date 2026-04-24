@@ -1,23 +1,25 @@
 # Envoy AI Gateway v0.4 to v0.5 Migration Plan
 
-이 문서는 Envoy AI Gateway v0.4 basic baseline을 v0.5 환경으로 옮기기 위한 migration 계획이다. 아직 v0.5 실검증 전이므로 모든 v0.5 항목은 **계획** 또는 **검토 필요** 상태다.
+이 문서는 Envoy AI Gateway v0.4 basic baseline을 v0.5 환경으로 옮기기 위한 migration 계획과 검증 결과를 정리한다.
+
+현재 basic scenario는 **검증 완료** 상태다. v0.4 source manifest가 v0.5 CRD/controller 환경에서 수정 없이 적용되고, 동일 curl 요청이 HTTP 200 OK를 반환했다.
 
 ## 핵심 방향
 
 단순히 v0.5 example을 새로 설치하는 것은 migration이 아니다. 이 프로젝트에서 migration은 다음 과정을 의미한다.
 
 1. **검증 완료**: v0.4 basic baseline을 기준점으로 확보한다.
-2. **계획**: v0.5 클러스터와 controller를 별도로 구성한다.
-3. **계획**: v0.4 basic manifest를 v0.5 환경에 먼저 적용해 실패 지점을 확인한다.
-4. **계획**: v0.5 tag의 example과 공식 문서를 참고해 v0.4 manifest를 v0.5 schema로 수정한다.
-5. **계획**: 수정 전/후 diff와 실패 원인을 문서화한다.
-6. **계획**: v0.4와 같은 curl scenario가 v0.5에서도 HTTP 200으로 동작하는지 확인한다.
+2. **검증 완료**: v0.5 클러스터와 controller를 별도로 구성한다.
+3. **검증 완료**: v0.4 basic manifest를 v0.5 환경에 먼저 적용해 실패 지점을 확인한다.
+4. **검증 완료**: v0.5 tag의 example과 공식 문서를 참고해 v0.4 manifest를 v0.5 schema와 비교한다.
+5. **검증 완료**: 수정 전/후 diff를 문서화한다. basic scenario는 no-op migration이다.
+6. **검증 완료**: v0.4와 같은 curl scenario가 v0.5에서도 HTTP 200으로 동작하는지 확인한다.
 
 ## 목표
 
-- v0.4 baseline manifest가 v0.5에서 어떤 이유로 깨지는지 확인한다.
+- v0.4 baseline manifest가 v0.5에서 깨지는지 확인한다.
 - v0.5에 맞춘 migrated manifest를 `manifests/v05/`에 고정한다.
-- 변경 전/후 차이를 문서화해 migration guide로 남긴다.
+- 변경 전/후 차이를 문서화해 migration guide로 남긴다. basic scenario는 파일 차이가 없다.
 - Memory PoC에서 활용할 v0.5 기능의 실제 사용 지점을 확인한다.
   - GatewayConfig
   - `schema.version`에서 `schema.prefix`로의 전환
@@ -109,21 +111,21 @@ manifests/v04/basic.yaml
 
 ### Step 2. v0.5 환경 구성
 
-**계획 / 검토 필요**
+**검증 완료**
 
 v0.4와 섞이지 않도록 별도 Kind cluster를 사용한다.
 
 ```bash
-kind create cluster --name aigw-v05 --image kindest/node:<검토 필요>
+kind create cluster --name aigw-v05 --image kindest/node:v1.32.0
 kubectl config use-context kind-aigw-v05
 ```
 
-검토할 항목:
+검증한 버전:
 
-- v0.5의 Kubernetes 최소/권장 버전
-- v0.5와 호환되는 Envoy Gateway chart 버전
-- Envoy AI Gateway v0.5.0 CRD chart 설치 방식
-- Envoy AI Gateway v0.5.0 controller chart 설치 방식
+- Kubernetes: v1.32.0
+- Envoy Gateway: v1.6.0
+- Envoy AI Gateway CRD chart: v0.5.0
+- Envoy AI Gateway controller chart: v0.5.0
 
 namespace 기본 전략:
 
@@ -133,7 +135,7 @@ namespace 기본 전략:
 
 ### Step 3. v0.4 manifest를 v0.5 환경에 그대로 적용
 
-**계획**
+**검증 완료**
 
 v0.5 CRD와 controller가 설치된 상태에서 v0.4 basic manifest를 그대로 적용한다.
 
@@ -162,6 +164,13 @@ logs/v05-migration-attempt.md
 docs/02-v05-migration-plan.md
 docs/99-troubleshooting.md
 ```
+
+실제 결과:
+
+- `kubectl apply` 에러 없음
+- `AIGatewayRoute` Accepted
+- `AIServiceBackend` Accepted
+- curl HTTP 200 OK
 
 ### Step 4. v0.5 tag example과 비교
 
@@ -202,7 +211,7 @@ manifests/v05/basic-upstream.yaml
 
 ### Step 5. v0.5 migrated manifest 작성
 
-**계획**
+**검증 완료**
 
 v0.4 source manifest를 v0.5 schema에 맞게 수정해 `manifests/v05/basic-migrated.yaml`로 저장한다.
 
@@ -219,6 +228,12 @@ manifests/v05/basic-migrated.yaml
 - 꼭 필요한 변경만 반영한다.
 - 변경 이유를 문서에 남긴다.
 
+basic scenario 결과:
+
+- v0.4 source manifest와 v0.5 upstream basic manifest가 동일하다.
+- 따라서 `manifests/v05/basic-migrated.yaml`은 `manifests/v04/basic.yaml`과 동일하다.
+- 이 migration은 basic scenario 기준 no-op migration으로 기록한다.
+
 비교 명령:
 
 ```bash
@@ -227,7 +242,7 @@ git diff -- manifests/v04/basic.yaml manifests/v05/basic-migrated.yaml
 
 ### Step 6. v0.5 migrated manifest 적용 및 검증
 
-**계획**
+**검증 완료**
 
 ```bash
 kubectl apply -f manifests/v05/basic-migrated.yaml
@@ -282,6 +297,22 @@ curl -i \
 - route/backend 리소스가 Accepted 상태다.
 - `/v1/chat/completions` 요청이 HTTP `200 OK`를 반환한다.
 - v0.4와 v0.5의 manifest 차이가 문서화되어 있다.
+
+검증 결과:
+
+- `aigw-v05` node Ready
+- Envoy Gateway Pod Running
+- AI Gateway Controller Pod Running
+- Envoy data plane Pod Running
+- `AIGatewayRoute` Accepted
+- `AIServiceBackend` Accepted
+- `/v1/chat/completions` HTTP 200 OK
+
+상세 결과:
+
+```text
+logs/v05-migration-result.md
+```
 
 ## 확인해야 할 v0.5 변경점
 

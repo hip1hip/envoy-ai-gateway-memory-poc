@@ -1,0 +1,28 @@
+Name:         envoy-ai-gateway-basic-testupstream
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
+API Version:  aigateway.envoyproxy.io/v1alpha1
+Kind:         AIServiceBackend
+Metadata:
+  Creation Timestamp:  2026-04-24T06:58:20Z
+  Finalizers:
+    aigateway.envoyproxy.io/finalizer
+  Generation:        1
+  Resource Version:  763
+  UID:               de688dde-984f-481e-b010-eb4cff08968e
+Spec:
+  Backend Ref:
+    Group:  gateway.envoyproxy.io
+    Kind:   Backend
+    Name:   envoy-ai-gateway-basic-testupstream
+  Schema:
+    Name:  OpenAI
+Status:
+  Conditions:
+    Last Transition Time:  2026-04-24T06:58:20Z
+    Message:               AIServiceBackend reconciled successfully
+    Reason:                ReconciliationSucceeded
+    Status:                True
+    Type:                  Accepted
+Events:                    <none>

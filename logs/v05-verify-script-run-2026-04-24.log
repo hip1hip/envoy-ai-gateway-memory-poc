@@ -1,0 +1,68 @@
+
+== Kubernetes node 상태 ==
+NAME                     STATUS   ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION                     CONTAINER-RUNTIME
+aigw-v05-control-plane   Ready    control-plane   83s   v1.32.0   172.24.0.3    <none>        Debian GNU/Linux 12 (bookworm)   6.6.87.2-microsoft-standard-WSL2   containerd://1.7.24
+
+== Envoy Gateway Pod 상태 ==
+NAME                                                             READY   STATUS              RESTARTS   AGE
+envoy-default-envoy-ai-gateway-basic-21a9f8f8-77d4978bdf-nk46k   0/2     ContainerCreating   0          11s
+envoy-default-envoy-ai-gateway-basic-21a9f8f8-78bb85449b-2mjjc   0/3     ContainerCreating   0          6s
+envoy-gateway-54cd886ccc-q9pd4                                   1/1     Running             0          48s
+
+== AI Gateway Controller Pod 상태 ==
+NAME                                     READY   STATUS    RESTARTS   AGE
+ai-gateway-controller-68c96b5df5-v2x7q   1/1     Running   0          29s
+
+== Gateway 상태 ==
+NAME                     CLASS                    ADDRESS   PROGRAMMED   AGE
+envoy-ai-gateway-basic   envoy-ai-gateway-basic             False        13s
+
+== Gateway describe 확인 안내 ==
+다음 명령으로 Listener 조건을 확인하세요.
+확인할 주요 조건: Accepted=True, ResolvedRefs=True, Programmed=True
+
+kubectl describe gateway envoy-ai-gateway-basic
+
+== AIGatewayRoute 상태 ==
+NAME                     STATUS
+envoy-ai-gateway-basic   Accepted
+
+== AIGatewayRoute describe 확인 명령 ==
+kubectl describe aigatewayroute envoy-ai-gateway-basic
+
+== AIServiceBackend 상태 ==
+NAME                                  STATUS
+envoy-ai-gateway-basic-testupstream   Accepted
+
+== AIServiceBackend describe 확인 명령 ==
+kubectl describe aiservicebackend envoy-ai-gateway-basic-testupstream
+
+== GatewayConfig CRD 확인 ==
+NAME                                     CREATED AT
+gatewayconfigs.aigateway.envoyproxy.io   2026-04-24T06:58:00Z
+
+== Envoy Service 이름 추출 ==
+ENVOY_SERVICE=envoy-default-envoy-ai-gateway-basic-21a9f8f8
+
+== 별도 터미널에서 port-forward 실행 ==
+kubectl port-forward -n envoy-gateway-system svc/envoy-default-envoy-ai-gateway-basic-21a9f8f8 18080:80
+
+== port-forward 이후 curl 테스트 ==
+curl -i \
+  -H "Content-Type: application/json" \
+  -H "x-ai-eg-model: some-cool-self-hosted-model" \
+  -d '{
+    "model": "some-cool-self-hosted-model",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Hi."
+      }
+    ]
+  }' \
+  http://localhost:18080/v1/chat/completions
+
+성공 기준:
+- HTTP/1.1 200 OK
+- 응답 헤더에 x-model: some-cool-self-hosted-model 포함
+- 응답 body에 assistant message 포함

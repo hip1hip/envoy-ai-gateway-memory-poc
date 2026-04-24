@@ -1,0 +1,8 @@
+NAME                                                       CLASS                    ADDRESS   PROGRAMMED   AGE
+gateway.gateway.networking.k8s.io/envoy-ai-gateway-basic   envoy-ai-gateway-basic             False        114s
+
+NAME                                                            STATUS
+aigatewayroute.aigateway.envoyproxy.io/envoy-ai-gateway-basic   Accepted
+
+NAME                                                                           STATUS
+aiservicebackend.aigateway.envoyproxy.io/envoy-ai-gateway-basic-testupstream   Accepted

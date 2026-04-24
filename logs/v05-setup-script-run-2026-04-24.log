@@ -1,0 +1,129 @@
+== 사전 도구 확인 ==
+== Kind 클러스터 확인 ==
+Creating cluster "aigw-v05" ...
+ • Ensuring node image (kindest/node:v1.32.0) 🖼  ...
+ ✓ Ensuring node image (kindest/node:v1.32.0) 🖼
+ • Preparing nodes 📦   ...
+ ✓ Preparing nodes 📦 
+ • Writing configuration 📜  ...
+ ✓ Writing configuration 📜
+ • Starting control-plane 🕹️  ...
+ ✓ Starting control-plane 🕹️
+ • Installing CNI 🔌  ...
+ ✓ Installing CNI 🔌
+ • Installing StorageClass 💾  ...
+ ✓ Installing StorageClass 💾
+Set kubectl context to "kind-aigw-v05"
+You can now use your cluster with:
+
+kubectl cluster-info --context kind-aigw-v05
+
+Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community 🙂
+NAME                     STATUS     ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION                     CONTAINER-RUNTIME
+aigw-v05-control-plane   NotReady   control-plane   6s    v1.32.0   172.24.0.3    <none>        Debian GNU/Linux 12 (bookworm)   6.6.87.2-microsoft-standard-WSL2   containerd://1.7.24
+== Envoy Gateway v1.6.0 설치 ==
+Release "eg" does not exist. Installing it now.
+Pulled: docker.io/envoyproxy/gateway-helm:v1.6.0
+Digest: sha256:905eced000d4b2acb78f802f5d03af32a08d30478808c20d522ffa735476bc5d
+NAME: eg
+LAST DEPLOYED: Fri Apr 24 15:57:19 2026
+NAMESPACE: envoy-gateway-system
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+**************************************************************************
+*** PLEASE BE PATIENT: Envoy Gateway may take a few minutes to install ***
+**************************************************************************
+
+Envoy Gateway is an open source project for managing Envoy Proxy as a standalone or Kubernetes-based application gateway.
+
+Thank you for installing Envoy Gateway! 🎉
+
+Your release is named: eg. 🎉
+
+Your release is in namespace: envoy-gateway-system. 🎉
+
+To learn more about the release, try:
+
+  $ helm status eg -n envoy-gateway-system
+  $ helm get all eg -n envoy-gateway-system
+
+To have a quickstart of Envoy Gateway, please refer to https://gateway.envoyproxy.io/latest/tasks/quickstart.
+
+To get more details, please visit https://gateway.envoyproxy.io and https://github.com/envoyproxy/gateway.
+deployment.apps/envoy-gateway condition met
+== Envoy AI Gateway v0.5.0 설치 ==
+Release "aieg-crd" does not exist. Installing it now.
+Pulled: docker.io/envoyproxy/ai-gateway-crds-helm:v0.5.0
+Digest: sha256:6bdff91b538b48a6fc03c7d0ad70979aff761bbc489b60383371924a9f57b3b2
+NAME: aieg-crd
+LAST DEPLOYED: Fri Apr 24 15:58:00 2026
+NAMESPACE: envoy-ai-gateway-system
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+Release "aieg" does not exist. Installing it now.
+Pulled: docker.io/envoyproxy/ai-gateway-helm:v0.5.0
+Digest: sha256:89f23532cba298742cfdb703ac3d7436e4b8e3f750e6b0eaa0ffefd0177b1d82
+NAME: aieg
+LAST DEPLOYED: Fri Apr 24 15:58:03 2026
+NAMESPACE: envoy-ai-gateway-system
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+deployment.apps/ai-gateway-controller condition met
+== Envoy AI Gateway v0.5.0 example repo 준비 ==
+기존 repo를 재사용합니다: /home/hip1h/workspace/ai-gateway-v05
+From https://github.com/envoyproxy/ai-gateway
+ * tag                 v0.5.0     -> FETCH_HEAD
+HEAD is now at b40501fe deps: bumps EG (#1770)
+== v0.5 환경에 v0.4 source manifest 적용 ==
+gatewayclass.gateway.networking.k8s.io/envoy-ai-gateway-basic created
+gateway.gateway.networking.k8s.io/envoy-ai-gateway-basic created
+clienttrafficpolicy.gateway.envoyproxy.io/client-buffer-limit created
+aigatewayroute.aigateway.envoyproxy.io/envoy-ai-gateway-basic created
+aiservicebackend.aigateway.envoyproxy.io/envoy-ai-gateway-basic-testupstream created
+backend.gateway.envoyproxy.io/envoy-ai-gateway-basic-testupstream created
+deployment.apps/envoy-ai-gateway-basic-testupstream created
+service/envoy-ai-gateway-basic-testupstream created
+envoyproxy.gateway.envoyproxy.io/envoy-ai-gateway-basic created
+== v0.5 migrated manifest 적용 여부 확인 ==
+아직 migrated manifest가 없습니다: /home/hip1h/workspace/envoy-ai-gateway-memory-poc-v05-verify-20260424-155638/manifests/v05/basic-migrated.yaml
+현재 단계에서는 v0.4 source manifest 적용 결과를 migration evidence로 사용합니다.
+
+== 상태 확인 명령 ==
+kubectl get nodes -o wide
+kubectl get pods -n envoy-gateway-system
+kubectl get pods -n envoy-ai-gateway-system
+kubectl get gateway
+kubectl describe gateway envoy-ai-gateway-basic
+kubectl get aigatewayroute
+kubectl describe aigatewayroute envoy-ai-gateway-basic
+kubectl get aiservicebackend
+kubectl describe aiservicebackend envoy-ai-gateway-basic-testupstream
+
+== port-forward 준비 ==
+export ENVOY_SERVICE=$(kubectl get svc -n envoy-gateway-system \
+  --selector=gateway.envoyproxy.io/owning-gateway-namespace=default,gateway.envoyproxy.io/owning-gateway-name=envoy-ai-gateway-basic \
+  -o jsonpath='{.items[0].metadata.name}')
+
+echo "$ENVOY_SERVICE"
+
+== 별도 터미널에서 실행 ==
+kubectl port-forward -n envoy-gateway-system svc/$ENVOY_SERVICE 18080:80
+
+== curl 검증 ==
+curl -i \
+  -H "Content-Type: application/json" \
+  -H "x-ai-eg-model: some-cool-self-hosted-model" \
+  -d '{
+    "model": "some-cool-self-hosted-model",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Hi."
+      }
+    ]
+  }' \
+  http://localhost:18080/v1/chat/completions

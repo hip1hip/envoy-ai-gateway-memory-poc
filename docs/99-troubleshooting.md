@@ -327,6 +327,45 @@ curl -i \
   http://localhost:8080/v1/chat/completions
 ```
 
+## PowerShell에서 만든 Bash 파일의 CRLF 문제
+
+증상:
+
+- WSL에서 Bash 파일은 실행되지만 `tee` 결과 파일명이 `curl-v05-response.log\r`처럼 생성된다.
+- 또는 `set: command not found` 같은 이상한 메시지가 첫 줄에서 발생한다.
+
+가능한 원인:
+
+- PowerShell `Set-Content`가 CRLF line ending으로 파일을 저장했다.
+- here-string 앞에 BOM이 들어갔다.
+
+확인:
+
+```bash
+ls -lb
+```
+
+대응:
+
+```bash
+dos2unix run-v05-curl.sh
+```
+
+`dos2unix`가 없다면 WSL 내부에서 파일을 다시 생성한다.
+
+```bash
+cat > run-v05-curl.sh <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+EOF
+```
+
+이미 `\r`이 포함된 파일명이 생겼다면 이름을 정리한다.
+
+```bash
+mv $'curl-v05-response.log\r' curl-v05-response.log
+```
+
 ## `x-ai-eg-model` 헤더 누락
 
 증상:
