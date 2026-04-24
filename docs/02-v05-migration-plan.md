@@ -25,11 +25,57 @@
   - Header Mutation
   - ExtProc 설정 방식
 
+## 현재까지 확인한 v0.5 tag 정보
+
+**검증 완료**
+
+로컬 WSL에서 `envoyproxy/ai-gateway`의 `v0.5.0` tag를 clone해 확인했다.
+
+```text
+v0.5.0 tag commit: b40501fe
+```
+
+Helm chart도 OCI registry에서 조회 가능했다.
+
+```text
+ai-gateway-helm appVersion: v0.5.0
+ai-gateway-helm chart version: v0.5.0
+ai-gateway-crds-helm appVersion: v0.5.0
+ai-gateway-crds-helm chart version: v0.5.0
+```
+
+**검증 완료**
+
+`examples/basic/basic.yaml`은 v0.4.0과 v0.5.0 tag에서 동일한 파일이다.
+
+```text
+v0.4 basic sha256: 051cc1b5b4f31ec0dd0f4e01005f0ef469dba77acae4460fa86dcf73c0f81182
+v0.5 basic sha256: 051cc1b5b4f31ec0dd0f4e01005f0ef469dba77acae4460fa86dcf73c0f81182
+```
+
+따라서 basic manifest 자체는 v0.4에서 v0.5로 넘어갈 때 diff가 없을 수 있다. 다만 이것이 migration 검증이 끝났다는 뜻은 아니다. v0.5 CRD/controller 위에서 실제 apply와 route/backend reconciliation을 확인해야 한다.
+
+**검토 필요**
+
+v0.5 tag의 `site/docs/compatibility.md`에는 `main`과 `v0.4.x` 행만 있고, `v0.5.x` 행이 명시되어 있지 않았다. chart는 v0.5.0이 존재하므로 실제 설치 검증을 기준으로 판단한다.
+
+**검증 완료**
+
+v0.5 CRD 기준 `AIServiceBackend.spec.schema`에는 `prefix` 필드가 있고, `version`은 OpenAI prefix 호환 용도의 deprecated behavior로 설명되어 있다.
+
+**검증 완료**
+
+v0.5 CRD 기준 Body Mutation과 Header Mutation 필드는 `AIServiceBackend`와 `AIGatewayRoute` backend reference 쪽에 존재한다. Body Mutation은 top-level field set/remove와 최대 16개 제한이 CRD description에 명시되어 있다.
+
+**검증 완료**
+
+v0.5 CRD 기준 `GatewayConfig`는 `aigateway.envoyproxy.io/v1alpha1`이며, Gateway annotation `aigateway.envoyproxy.io/gateway-config`로 참조한다. 실제 CRD schema는 `spec.extProc.kubernetes.env`와 `spec.extProc.kubernetes.resources` 구조를 가진다.
+
 ## 작업 단위
 
 ### Step 1. v0.4 manifest 고정
 
-**계획**
+**검증 완료**
 
 v0.4 baseline에서 검증한 manifest를 `manifests/v04/`에 복사한다.
 
@@ -54,6 +100,12 @@ manifests/v04/basic.yaml
 
 - `manifests/v04/basic.yaml`이 v0.4 기준 원본으로 남는다.
 - main 브랜치 raw URL을 사용하지 않는다.
+
+현재 보관됨:
+
+```text
+manifests/v04/basic.yaml
+```
 
 ### Step 2. v0.5 환경 구성
 
@@ -113,7 +165,7 @@ docs/99-troubleshooting.md
 
 ### Step 4. v0.5 tag example과 비교
 
-**계획 / 검토 필요**
+**검증 완료**
 
 v0.5 example은 migration target을 이해하기 위한 참고 자료로 사용한다. v0.5 example 자체를 그대로 설치하는 것이 목표는 아니다.
 
@@ -135,6 +187,18 @@ grep -R "GatewayConfig\\|bodyMutation\\|headerMutation\\|externalProcessor\\|sch
 - `schema.prefix` 사용 여부
 - `GatewayConfig` 사용 여부
 - Body Mutation / Header Mutation 예제 위치
+
+현재 보관됨:
+
+```text
+manifests/v05/basic-upstream.yaml
+```
+
+확인 결과:
+
+- v0.4.0 `examples/basic/basic.yaml`과 v0.5.0 `examples/basic/basic.yaml`은 동일하다.
+- 따라서 basic scenario의 manifest 변경은 없을 수 있다.
+- 실제 migration 검증은 v0.5 controller/CRD 위에서 v0.4 manifest가 그대로 Accepted 되는지 확인해야 한다.
 
 ### Step 5. v0.5 migrated manifest 작성
 
