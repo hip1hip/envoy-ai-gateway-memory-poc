@@ -202,6 +202,131 @@ Forwarding from 127.0.0.1:8080 -> 10080
 Forwarding from [::1]:8080 -> 10080
 ```
 
+## `./scripts/setup-v04.sh: Permission denied`
+
+증상:
+
+```text
+./scripts/setup-v04.sh: Permission denied
+```
+
+가능한 원인:
+
+- Git checkout 이후 script 실행 비트가 없다.
+- Windows에서 작성한 파일이 WSL에서 executable로 표시되지 않는다.
+
+확인:
+
+```bash
+ls -l scripts/*.sh
+```
+
+대응:
+
+```bash
+chmod +x scripts/setup-v04.sh scripts/verify-v04.sh scripts/cleanup-v04.sh
+./scripts/setup-v04.sh
+```
+
+또는 실행 비트와 무관하게 Bash로 직접 실행한다.
+
+```bash
+bash scripts/setup-v04.sh
+```
+
+예상 결과:
+
+- 스크립트가 사전 도구 확인부터 진행된다.
+
+## `Unable to listen on port 8080`
+
+증상:
+
+```text
+Unable to listen on port 8080
+bind: address already in use
+```
+
+가능한 원인:
+
+- 기존 `kubectl port-forward` 프로세스가 이미 8080을 사용 중이다.
+- 다른 로컬 개발 서버가 8080을 사용 중이다.
+
+확인:
+
+```bash
+ps -ef | grep kubectl | grep port-forward
+ss -ltnp | grep ':8080'
+```
+
+대응:
+
+- 기존 port-forward가 같은 Envoy Service를 가리키면 그대로 재사용한다.
+- 다른 프로세스가 사용 중이면 다른 로컬 포트를 사용한다.
+
+예:
+
+```bash
+kubectl port-forward -n envoy-gateway-system svc/$ENVOY_SERVICE 18080:80
+```
+
+curl도 같은 포트로 변경한다.
+
+```bash
+curl -i \
+  -H "Content-Type: application/json" \
+  -H "x-ai-eg-model: some-cool-self-hosted-model" \
+  -d '{
+    "model": "some-cool-self-hosted-model",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Hi."
+      }
+    ]
+  }' \
+  http://localhost:18080/v1/chat/completions
+```
+
+## PowerShell에서 WSL Bash 명령 quote가 깨짐
+
+증상:
+
+- Bash 변수 예: `$VERIFY_DIR`가 비어 있는 것처럼 보인다.
+- JSON body가 PowerShell에서 먼저 해석되어 `unexpected EOF` 또는 `Unexpected token ':'`가 발생한다.
+
+원인:
+
+- PowerShell과 Bash의 quoting 규칙이 다르다.
+- WSL로 복잡한 multi-line 명령을 넘길 때 PowerShell이 `$`, quote, JSON 문자를 먼저 해석할 수 있다.
+
+대응:
+
+- WSL 안에서 직접 Bash shell을 열고 명령을 실행한다.
+- 복잡한 JSON body는 inline으로 넘기지 말고 파일로 분리한다.
+
+예:
+
+```bash
+cat > request-v04.json <<'JSON'
+{
+  "model": "some-cool-self-hosted-model",
+  "messages": [
+    {
+      "role": "system",
+      "content": "Hi."
+    }
+  ]
+}
+JSON
+
+curl -i \
+  -H "Content-Type: application/json" \
+  -H "x-ai-eg-model: some-cool-self-hosted-model" \
+  --data @request-v04.json \
+  http://localhost:8080/v1/chat/completions
+```
+
 ## `x-ai-eg-model` 헤더 누락
 
 증상:

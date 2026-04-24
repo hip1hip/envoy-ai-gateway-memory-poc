@@ -1,0 +1,8 @@
+HTTP/1.1 200 OK
+content-type: application/json
+testupstream-id: test
+x-model: some-cool-self-hosted-model
+date: Fri, 24 Apr 2026 06:32:33 GMT
+content-length: 196
+
+{"choices": [{"index": 0,"message": {"role": "assistant","content": "To infinity and beyond!"},"finish_reason": "stop"}],"usage": {"prompt_tokens": 1,"completion_tokens": 100,"total_tokens": 300}}

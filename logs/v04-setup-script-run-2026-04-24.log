@@ -1,0 +1,108 @@
+== 사전 도구 확인 ==
+== Kind 클러스터 확인 ==
+기존 클러스터 'aigw-v04'를 재사용합니다. Kubernetes v1.32.0
+NAME                     STATUS   ROLES           AGE     VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION                     CONTAINER-RUNTIME
+aigw-v04-control-plane   Ready    control-plane   5h36m   v1.32.0   172.24.0.2    <none>        Debian GNU/Linux 12 (bookworm)   6.6.87.2-microsoft-standard-WSL2   containerd://1.7.24
+== Envoy Gateway v1.5.4 설치 ==
+Pulled: docker.io/envoyproxy/gateway-helm:v1.5.4
+Digest: sha256:75139e07771830ffa1e9d5dbbb3d7037499bdfc757e70e536af592e085f69c1b
+Release "eg" has been upgraded. Happy Helming!
+NAME: eg
+LAST DEPLOYED: Fri Apr 24 15:30:15 2026
+NAMESPACE: envoy-gateway-system
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+NOTES:
+**************************************************************************
+*** PLEASE BE PATIENT: Envoy Gateway may take a few minutes to install ***
+**************************************************************************
+
+Envoy Gateway is an open source project for managing Envoy Proxy as a standalone or Kubernetes-based application gateway.
+
+Thank you for installing Envoy Gateway! 🎉
+
+Your release is named: eg. 🎉
+
+Your release is in namespace: envoy-gateway-system. 🎉
+
+To learn more about the release, try:
+
+  $ helm status eg -n envoy-gateway-system
+  $ helm get all eg -n envoy-gateway-system
+
+To have a quickstart of Envoy Gateway, please refer to https://gateway.envoyproxy.io/latest/tasks/quickstart.
+
+To get more details, please visit https://gateway.envoyproxy.io and https://github.com/envoyproxy/gateway.
+deployment.apps/envoy-gateway condition met
+== Envoy AI Gateway v0.4.0 설치 ==
+Pulled: docker.io/envoyproxy/ai-gateway-crds-helm:v0.4.0
+Digest: sha256:17bdfef1200691eb66cdc73be26d6586950dd572d4348f3a8af036f9356c4d7c
+Release "aieg-crd" has been upgraded. Happy Helming!
+NAME: aieg-crd
+LAST DEPLOYED: Fri Apr 24 15:30:27 2026
+NAMESPACE: envoy-ai-gateway-system
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+Pulled: docker.io/envoyproxy/ai-gateway-helm:v0.4.0
+Digest: sha256:a513810a6f5b50a13f49b1942fba5804fc75051ab449533bc5df482ac0537c82
+Release "aieg" has been upgraded. Happy Helming!
+NAME: aieg
+LAST DEPLOYED: Fri Apr 24 15:30:31 2026
+NAMESPACE: envoy-ai-gateway-system
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+deployment.apps/ai-gateway-controller condition met
+== Envoy AI Gateway v0.4.0 example repo 준비 ==
+기존 repo를 재사용합니다: /home/hip1h/workspace/ai-gateway-v04
+From https://github.com/envoyproxy/ai-gateway
+ * tag                 v0.4.0     -> FETCH_HEAD
+HEAD is now at ad5f75ee feat: enhance openAIToolsToGeminiTools to handle response JSON schema availability (#1512)
+== v0.4 basic example 적용 ==
+gatewayclass.gateway.networking.k8s.io/envoy-ai-gateway-basic unchanged
+gateway.gateway.networking.k8s.io/envoy-ai-gateway-basic configured
+clienttrafficpolicy.gateway.envoyproxy.io/client-buffer-limit unchanged
+aigatewayroute.aigateway.envoyproxy.io/envoy-ai-gateway-basic configured
+aiservicebackend.aigateway.envoyproxy.io/envoy-ai-gateway-basic-testupstream unchanged
+backend.gateway.envoyproxy.io/envoy-ai-gateway-basic-testupstream unchanged
+deployment.apps/envoy-ai-gateway-basic-testupstream unchanged
+service/envoy-ai-gateway-basic-testupstream unchanged
+envoyproxy.gateway.envoyproxy.io/envoy-ai-gateway-basic unchanged
+
+== 상태 확인 명령 ==
+kubectl get nodes -o wide
+kubectl get pods -n envoy-gateway-system
+kubectl get pods -n envoy-ai-gateway-system
+kubectl get gateway
+kubectl describe gateway envoy-ai-gateway-basic
+kubectl get aigatewayroute
+kubectl describe aigatewayroute envoy-ai-gateway-basic
+kubectl get aiservicebackend
+kubectl describe aiservicebackend envoy-ai-gateway-basic-testupstream
+
+== port-forward 준비 ==
+export ENVOY_SERVICE=$(kubectl get svc -n envoy-gateway-system \
+  --selector=gateway.envoyproxy.io/owning-gateway-namespace=default,gateway.envoyproxy.io/owning-gateway-name=envoy-ai-gateway-basic \
+  -o jsonpath='{.items[0].metadata.name}')
+
+echo "$ENVOY_SERVICE"
+
+== 별도 터미널에서 실행 ==
+kubectl port-forward -n envoy-gateway-system svc/$ENVOY_SERVICE 8080:80
+
+== curl 검증 ==
+curl -i \
+  -H "Content-Type: application/json" \
+  -H "x-ai-eg-model: some-cool-self-hosted-model" \
+  -d '{
+    "model": "some-cool-self-hosted-model",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Hi."
+      }
+    ]
+  }' \
+  http://localhost:8080/v1/chat/completions
