@@ -1,0 +1,100 @@
+
+== Header Mutation manifest 적용 ==
+aigatewayroute.aigateway.envoyproxy.io/envoy-ai-gateway-basic configured
+
+== AIGatewayRoute 상태 확인 ==
+NAME                     STATUS
+envoy-ai-gateway-basic   Accepted
+{"remove":["x-remove-me"],"set":[{"name":"x-session-id","value":"header-mutated-session"},{"name":"x-memory-policy","value":"short-term"}]}
+ENVOY_SERVICE=envoy-default-envoy-ai-gateway-basic-21a9f8f8
+
+== port-forward 시작 ==
+
+== curl 검증 ==
+{"choices": [{"index": 0,"message": {"role": "assistant","content": "The quick brown fox jumps over the lazy dog."},"finish_reason": "stop"}],"usage": {"prompt_tokens": 1,"completion_tokens": 100,"total_tokens": 300}}
+HTTP_CODE=200
+
+== backend log 확인 ==
+[testupstream] header "X-Ai-Eg-Internal-Req-Id": [8e82e482-0840-459f-90c7-644cc49e36dd-e8e3eef2-3d36-4cbf-8ff5-873a8bfb253f]
+[testupstream] header "X-Ai-Eg-Original-Path": [/v1/chat/completions]
+[testupstream] header "X-Forwarded-Host": [localhost:18081]
+[testupstream] header "Content-Length": [156]
+[testupstream] header "User-Agent": [curl/8.5.0]
+[testupstream] header "Content-Type": [application/json]
+[testupstream] header "X-Forwarded-For": [10.244.0.12]
+[testupstream] header "X-Forwarded-Proto": [http]
+[testupstream] header "X-Request-Id": [8e82e482-0840-459f-90c7-644cc49e36dd]
+[testupstream] header "X-Ai-Eg-Model": [some-cool-self-hosted-model]
+[testupstream] no expected host: got envoy-ai-gateway-basic-testupstream.default.svc.cluster.local
+[testupstream] no expected headers
+[testupstream] no non-expected headers in the request
+[testupstream] no expected testupstream-id
+[testupstream] Request body (156 bytes)
+[testupstream] no expected request body
+[testupstream] no response headers
+[testupstream] detected model in the request: some-cool-self-hosted-model
+[testupstream] header "Content-Length": [156]
+[testupstream] header "User-Agent": [curl/8.5.0]
+[testupstream] header "Accept": [*/*]
+[testupstream] header "X-Request-Id": [a57bcc56-208b-4a21-a90c-00043b02dace]
+[testupstream] header "X-Ai-Eg-Internal-Req-Id": [a57bcc56-208b-4a21-a90c-00043b02dace-bd2ea4c1-e25f-498b-accb-6c0e7325d2a0]
+[testupstream] header "Content-Type": [application/json]
+[testupstream] header "X-Forwarded-For": [10.244.0.12]
+[testupstream] header "X-Forwarded-Proto": [http]
+[testupstream] header "X-Envoy-External-Address": [127.0.0.1]
+[testupstream] header "X-Ai-Eg-Model": [some-cool-self-hosted-model]
+[testupstream] header "X-Ai-Eg-Original-Path": [/v1/chat/completions]
+[testupstream] header "X-Forwarded-Host": [localhost:18082]
+[testupstream] no expected host: got envoy-ai-gateway-basic-testupstream.default.svc.cluster.local
+[testupstream] no expected headers
+[testupstream] no non-expected headers in the request
+[testupstream] no expected testupstream-id
+[testupstream] Request body (156 bytes)
+[testupstream] no expected request body
+[testupstream] no response headers
+[testupstream] detected model in the request: some-cool-self-hosted-model
+[testupstream] header "User-Agent": [curl/8.5.0]
+[testupstream] header "Accept": [*/*]
+[testupstream] header "Content-Type": [application/json]
+[testupstream] header "X-Forwarded-Proto": [http]
+[testupstream] header "X-Envoy-External-Address": [127.0.0.1]
+[testupstream] header "X-Ai-Eg-Internal-Req-Id": [6df34fe9-ccfc-417a-80a5-077e009fac80-0c246af0-fc09-41b9-b4ec-bcabc8496b14]
+[testupstream] header "X-Forwarded-Host": [localhost:18082]
+[testupstream] header "X-Forwarded-For": [10.244.0.12]
+[testupstream] header "X-Request-Id": [6df34fe9-ccfc-417a-80a5-077e009fac80]
+[testupstream] header "X-Ai-Eg-Model": [some-cool-self-hosted-model]
+[testupstream] header "X-Ai-Eg-Original-Path": [/v1/chat/completions]
+[testupstream] header "Content-Length": [147]
+[testupstream] no expected host: got envoy-ai-gateway-basic-testupstream.default.svc.cluster.local
+[testupstream] no expected headers
+[testupstream] no non-expected headers in the request
+[testupstream] no expected testupstream-id
+[testupstream] Request body (147 bytes)
+[testupstream] no expected request body
+[testupstream] no response headers
+[testupstream] detected model in the request: body-mutated-model
+[testupstream] header "Accept": [*/*]
+[testupstream] header "Content-Type": [application/json]
+[testupstream] header "X-Forwarded-Proto": [http]
+[testupstream] header "X-Ai-Eg-Internal-Req-Id": [e64fbc10-3d4d-42c0-98c7-11dfd061b06d-952cb48d-ca3c-4daf-820b-4d398c446bce]
+[testupstream] header "X-Ai-Eg-Original-Path": [/v1/chat/completions]
+[testupstream] header "X-Ai-Eg-Model": [some-cool-self-hosted-model]
+[testupstream] header "X-Session-Id": [header-mutated-session]
+[testupstream] header "Content-Length": [147]
+[testupstream] header "User-Agent": [curl/8.5.0]
+[testupstream] header "X-Envoy-External-Address": [127.0.0.1]
+[testupstream] header "X-Forwarded-Host": [localhost:18083]
+[testupstream] header "X-Memory-Policy": [short-term]
+[testupstream] header "X-Forwarded-For": [10.244.0.12]
+[testupstream] header "X-Request-Id": [e64fbc10-3d4d-42c0-98c7-11dfd061b06d]
+[testupstream] no expected host: got envoy-ai-gateway-basic-testupstream.default.svc.cluster.local
+[testupstream] no expected headers
+[testupstream] no non-expected headers in the request
+[testupstream] no expected testupstream-id
+[testupstream] Request body (147 bytes)
+[testupstream] no expected request body
+[testupstream] no response headers
+[testupstream] detected model in the request: body-mutated-model
+
+== 검증 완료 ==
+Header Mutation set/remove가 backend 요청 헤더에 반영됐습니다.

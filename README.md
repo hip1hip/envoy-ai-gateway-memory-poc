@@ -66,11 +66,11 @@
 - `GatewayConfig` 기반 ExtProc env/resources 반영 확인
 - `schema.prefix=/v1` 적용 후 `/v1/chat/completions` HTTP 200 OK 확인
 - `AIServiceBackend.spec.bodyMutation` 기반 top-level request body field 변경 확인
+- `AIGatewayRoute` backendRef Header Mutation set/remove 확인
 
 **검토 필요**
 
 - `AIGatewayRoute.spec.rules.backendRefs[].bodyMutation` 실제 적용 조건 추가 확인
-- Header Mutation 동작 검증
 
 ### Memory PoC
 
@@ -95,6 +95,7 @@
 - [v0.5 GatewayConfig 검증 결과](logs/v05-gateway-config-result.md)
 - [v0.5 schema.prefix 검증 결과](logs/v05-schema-prefix-result.md)
 - [v0.5 Body Mutation 검증 결과](logs/v05-body-mutation-result.md)
+- [v0.5 Header Mutation 검증 결과](logs/v05-header-mutation-result.md)
 
 ## 빠른 시작 가이드
 

@@ -1,0 +1,28 @@
+# Header Mutation 검증용 AIGatewayRoute manifest.
+# 목적: v0.5에서 backendRef.headerMutation.set/remove가 backend 전달 요청 헤더를 바꾸는지 확인한다.
+apiVersion: aigateway.envoyproxy.io/v1alpha1
+kind: AIGatewayRoute
+metadata:
+  name: envoy-ai-gateway-basic
+  namespace: default
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-ai-gateway-basic
+  rules:
+    - matches:
+        - headers:
+            - name: x-ai-eg-model
+              type: Exact
+              value: some-cool-self-hosted-model
+      backendRefs:
+        - name: envoy-ai-gateway-basic-testupstream
+          headerMutation:
+            set:
+              - name: x-session-id
+                value: header-mutated-session
+              - name: x-memory-policy
+                value: short-term
+            remove:
+              - x-remove-me

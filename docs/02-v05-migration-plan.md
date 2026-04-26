@@ -401,15 +401,21 @@ logs/v05-body-mutation-result.md
 
 ### Header Mutation
 
-**검토 필요**
+**검증 완료**
 
 Header Mutation은 session id 전달, 내부 routing metadata, backend 전달 헤더 정리에 사용할 수 있다.
 
-확인할 항목:
+확인 결과:
 
-- `x-session-id`를 backend 또는 ExtProc로 전달할 수 있는지
-- 내부용 헤더를 제거할 수 있는지
-- route match에 쓰는 `x-ai-eg-model`과 충돌하지 않는지
+- route backendRef 위치의 `headerMutation.set`으로 `x-session-id`, `x-memory-policy`를 backend 요청에 주입했다.
+- route backendRef 위치의 `headerMutation.remove`로 client가 보낸 `x-remove-me`를 backend 요청에서 제거했다.
+- 기존 route match에 쓰는 `x-ai-eg-model`과 충돌하지 않고 HTTP 200 OK를 반환했다.
+
+상세 결과:
+
+```text
+logs/v05-header-mutation-result.md
+```
 
 ### ExtProc / Memory 연계 지점
 
@@ -454,6 +460,5 @@ scripts/cleanup-v05.sh
 다음 항목은 모두 **검토 필요**다.
 
 - Body Mutation으로 `messages` 배열 전체 교체가 가능한지
-- Header Mutation의 실제 제한과 동작 방식
 - ExtProc로 request/response body를 모두 처리하는 설정
 - Memory PoC에 필요한 response 저장 흐름
