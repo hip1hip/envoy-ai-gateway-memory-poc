@@ -1,0 +1,23 @@
+
+== Body Mutation manifest 적용 ==
+aigatewayroute.aigateway.envoyproxy.io/envoy-ai-gateway-basic configured
+
+== AIGatewayRoute 상태 확인 ==
+NAME                     STATUS
+envoy-ai-gateway-basic   Accepted
+{"set":[{"path":"model","value":"\"body-mutated-model\""}]}
+ENVOY_SERVICE=envoy-default-envoy-ai-gateway-basic-21a9f8f8
+
+== port-forward 시작 ==
+
+== curl 검증 ==
+HTTP/1.1 200 OK
+content-type: application/json
+testupstream-id: test
+x-model: some-cool-self-hosted-model
+date: Sun, 26 Apr 2026 20:55:40 GMT
+content-length: 210
+
+{"choices": [{"index": 0,"message": {"role": "assistant","content": "I feel the need - the need for speed."},"finish_reason": "stop"}],"usage": {"prompt_tokens": 1,"completion_tokens": 100,"total_tokens": 300}}
+HTTP_CODE=200
+응답 x-model 헤더가 기대값과 다릅니다: body-mutated-model

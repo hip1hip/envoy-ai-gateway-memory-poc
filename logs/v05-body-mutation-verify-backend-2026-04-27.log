@@ -1,0 +1,27 @@
+
+== Body Mutation manifest 적용 ==
+aigatewayroute.aigateway.envoyproxy.io/envoy-ai-gateway-basic configured
+aiservicebackend.aigateway.envoyproxy.io/envoy-ai-gateway-basic-testupstream configured
+
+== AIGatewayRoute 상태 확인 ==
+NAME                     STATUS
+envoy-ai-gateway-basic   Accepted
+{"set":[{"path":"model","value":"\"body-mutated-model\""}]}
+{"set":[{"path":"model","value":"\"body-mutated-model\""}]}
+ENVOY_SERVICE=envoy-default-envoy-ai-gateway-basic-21a9f8f8
+
+== port-forward 시작 ==
+
+== curl 검증 ==
+HTTP/1.1 200 OK
+content-type: application/json
+testupstream-id: test
+x-model: body-mutated-model
+date: Sun, 26 Apr 2026 20:56:09 GMT
+content-length: 178
+
+{"choices": [{"index": 0,"message": {"role": "assistant","content": "Nani?"},"finish_reason": "stop"}],"usage": {"prompt_tokens": 1,"completion_tokens": 100,"total_tokens": 300}}
+HTTP_CODE=200
+
+== 검증 완료 ==
+Body Mutation으로 request body model field가 body-mutated-model(으)로 변경됐습니다.

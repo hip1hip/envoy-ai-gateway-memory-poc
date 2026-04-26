@@ -1,0 +1,19 @@
+# Body Mutation 검증용 AIServiceBackend manifest.
+# 목적: v0.5에서 AIServiceBackend.spec.bodyMutation.set이 요청 body의 top-level model field를 바꾸는지 확인한다.
+apiVersion: aigateway.envoyproxy.io/v1alpha1
+kind: AIServiceBackend
+metadata:
+  name: envoy-ai-gateway-basic-testupstream
+  namespace: default
+spec:
+  schema:
+    name: OpenAI
+    prefix: /v1
+  backendRef:
+    name: envoy-ai-gateway-basic-testupstream
+    kind: Backend
+    group: gateway.envoyproxy.io
+  bodyMutation:
+    set:
+      - path: model
+        value: '"body-mutated-model"'

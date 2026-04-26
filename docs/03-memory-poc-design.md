@@ -126,6 +126,12 @@ Client
 - v0.5 `GatewayConfig`의 `spec.extProc.kubernetes.env`를 통해 `REDIS_URL`, `MEMORY_TTL_SECONDS`, `MEMORY_MAX_HISTORY_MESSAGES` 같은 Memory 설정을 `ai-gateway-extproc` 컨테이너에 전달할 수 있다.
 - v0.5 `GatewayConfig`의 `spec.extProc.kubernetes.resources`를 통해 ExtProc 컨테이너 requests/limits를 설정할 수 있다.
 - 단, 기존 data plane Pod에는 즉시 반영되지 않았고 rollout restart 후 새 Pod에서 반영을 확인했다.
+- v0.5 `AIServiceBackend.spec.bodyMutation.set`으로 request body의 top-level field 변경을 확인했다.
+
+추가 판단:
+
+- Body Mutation은 top-level field 중심이라 `messages[*]` 내부를 세밀하게 병합하는 memory injection에는 한계가 있다.
+- Redis 조회 후 history를 병합해야 하는 핵심 memory 흐름은 ExtProc 쪽 검증을 우선해야 한다.
 
 ## Option B: Body Mutation + 외부 Memory Service
 

@@ -381,17 +381,23 @@ logs/v05-schema-prefix-result.md
 
 ### Body Mutation
 
-**검토 필요**
+**부분 검증 완료 / 추가 검토 필요**
 
 Memory PoC에서는 요청 body의 `messages`를 history가 포함된 배열로 바꾸는 기능이 필요하다.
 
-확인할 항목:
+확인 결과:
 
-- Body Mutation이 top-level field만 지원하는지
-- `messages` 배열 전체 교체가 가능한지
-- 최대 mutation field 수 제한
-- request body mutation과 response body mutation 지원 범위
-- OpenAI compatible request body에 적용 가능한지
+- CRD 설명 기준 Body Mutation은 top-level field만 지원한다.
+- `AIServiceBackend.spec.bodyMutation.set`으로 request body의 top-level `model` field 변경을 확인했다.
+- `AIGatewayRoute.spec.rules.backendRefs[].bodyMutation`는 리소스상 `Accepted` 되었지만, 이번 관측 기준에서는 backend 응답의 `x-model` 변경이 확인되지 않았다. 추가 확인이 필요하다.
+- `messages` 배열 전체 교체 가능성은 아직 **검토 필요**다.
+- response body mutation 지원 여부는 아직 **검토 필요**다.
+
+상세 결과:
+
+```text
+logs/v05-body-mutation-result.md
+```
 
 ### Header Mutation
 
@@ -447,7 +453,7 @@ scripts/cleanup-v05.sh
 
 다음 항목은 모두 **검토 필요**다.
 
-- Body Mutation의 실제 제한과 동작 방식
+- Body Mutation으로 `messages` 배열 전체 교체가 가능한지
 - Header Mutation의 실제 제한과 동작 방식
 - ExtProc로 request/response body를 모두 처리하는 설정
 - Memory PoC에 필요한 response 저장 흐름
