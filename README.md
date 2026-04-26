@@ -21,8 +21,9 @@
 
 2. **v0.5 migration 검토**
    - v0.5 설치 방식과 의존성 확인
-   - `GatewayConfig`, `schema.prefix`, Body Mutation, Header Mutation 변경점 검토
-   - v0.4 manifest와 v0.5 manifest 차이 정리
+   - v0.4 manifest를 v0.5 환경에 그대로 적용해 migration 검증
+   - basic scenario 기준 no-op migration 확인
+   - `GatewayConfig`, `schema.prefix`, Body Mutation, Header Mutation은 후속 기능 검증으로 분리
 
 3. **Memory PoC 설계 및 구현**
    - Redis 기반 session memory 저장소 구성
@@ -84,6 +85,7 @@
 - [v0.4 baseline 재현 문서](docs/01-v04-baseline.md)
 - [v0.5 migration 계획](docs/02-v05-migration-plan.md)
 - [Memory PoC 설계 초안](docs/03-memory-poc-design.md)
+- [v0.5 검증 완료 baseline](docs/04-v05-verified-baseline.md)
 - [Troubleshooting](docs/99-troubleshooting.md)
 - [v0.4 baseline 결과 로그](logs/v04-baseline-result.md)
 - [v0.5 migration 결과 로그](logs/v05-migration-result.md)
