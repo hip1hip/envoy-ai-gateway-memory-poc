@@ -1,0 +1,27 @@
+# GatewayConfig 검증용 manifest.
+# 목적: v0.5에서 Gateway 단위 extProc env/resources 설정이 data plane의
+# ai-gateway-extproc 컨테이너에 반영되는지 확인한다.
+apiVersion: aigateway.envoyproxy.io/v1alpha1
+kind: GatewayConfig
+metadata:
+  name: memory-poc-gateway-config
+  namespace: default
+spec:
+  extProc:
+    kubernetes:
+      env:
+        - name: MEMORY_POC_MARKER
+          value: gateway-config-v05
+        - name: MEMORY_TTL_SECONDS
+          value: "3600"
+        - name: MEMORY_MAX_HISTORY_MESSAGES
+          value: "20"
+        - name: REDIS_URL
+          value: redis://redis.ai-gateway-memory.svc.cluster.local:6379
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 250m
+          memory: 256Mi

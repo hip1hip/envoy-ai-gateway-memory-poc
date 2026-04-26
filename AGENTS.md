@@ -74,9 +74,13 @@ helm upgrade -i eg oci://docker.io/envoyproxy/gateway-helm \
 
 ## v0.5 / Memory 기준
 
+**검증 완료**
+
+- v0.5 basic migration은 `aigw-v05` Kind cluster에서 검증 완료 상태다.
+- GatewayConfig의 `spec.extProc.kubernetes.env/resources`는 data plane rollout restart 후 `ai-gateway-extproc` 컨테이너에 반영됨을 확인했다.
+
 **계획 / 검토 필요**
 
-- v0.5 migration은 아직 직접 검증 전이다.
-- GatewayConfig, `schema.prefix`, Body Mutation, Header Mutation은 실제 v0.5 클러스터에서 확인해야 한다.
+- `schema.prefix`, Body Mutation, Header Mutation은 실제 v0.5 클러스터에서 추가 확인해야 한다.
 - Memory PoC는 Redis와 `x-session-id` 기반 short-term memory를 우선 검토한다.
 - MCP와 Agent Gateway는 이번 핵심 범위에서 제외한다.

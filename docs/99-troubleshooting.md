@@ -30,6 +30,41 @@ docker ps
 
 두 명령이 모두 성공해야 Kind 클러스터를 생성할 수 있다.
 
+## Docker Desktop 중지로 인한 Kind API 연결 실패
+
+증상:
+
+```text
+The system cannot find the file specified.
+Unable to connect to the server: dial tcp 127.0.0.1:<port>: connectex: No connection could be made
+```
+
+가능한 원인:
+
+- Docker Desktop이 실행 중이 아니다.
+- WSL Docker integration이 준비되기 전에 `kubectl` 또는 `kind` 명령을 실행했다.
+- 기존 Kind cluster container는 남아 있지만 Kubernetes API server에 연결할 수 없다.
+
+확인:
+
+```bash
+docker version
+kind get clusters
+kubectl --context kind-aigw-v05 get nodes
+```
+
+대응:
+
+- Windows에서 Docker Desktop을 실행한다.
+- WSL terminal을 새로 열고 `docker version`이 성공하는지 확인한다.
+- 이후 `kind get clusters`, `kubectl get nodes` 순서로 cluster 상태를 다시 확인한다.
+
+예상 결과:
+
+```text
+aigw-v05-control-plane   Ready
+```
+
 ## Kind 기본 Kubernetes v1.35.x 사용 문제
 
 증상:
@@ -365,6 +400,50 @@ EOF
 ```bash
 mv $'curl-v05-response.log\r' curl-v05-response.log
 ```
+
+## GatewayConfig Accepted이지만 ExtProc env/resources가 비어 있음
+
+증상:
+
+```bash
+kubectl describe gatewayconfig memory-poc-gateway-config
+```
+
+에서는 `Accepted=True`로 보이지만, data plane Pod의 `ai-gateway-extproc` 컨테이너 env/resources가 비어 있다.
+
+확인:
+
+```bash
+POD=$(kubectl get pods -n envoy-gateway-system \
+  -l gateway.envoyproxy.io/owning-gateway-name=envoy-ai-gateway-basic \
+  --sort-by=.metadata.creationTimestamp \
+  --no-headers | awk '$3 == "Running" { pod_name=$1 } END { print pod_name }')
+
+kubectl get pod "$POD" -n envoy-gateway-system \
+  -o jsonpath='{range .spec.containers[?(@.name=="ai-gateway-extproc")].env[*]}{.name}={.value}{"\n"}{end}'
+
+kubectl get pod "$POD" -n envoy-gateway-system \
+  -o jsonpath='{.spec.containers[?(@.name=="ai-gateway-extproc")].resources}{"\n"}'
+```
+
+대응:
+
+GatewayConfig를 적용하고 Gateway annotation을 연결한 뒤 data plane Deployment를 재시작한다.
+
+```bash
+DEPLOYMENT=$(kubectl get deployment -n envoy-gateway-system \
+  -l gateway.envoyproxy.io/owning-gateway-name=envoy-ai-gateway-basic \
+  -o jsonpath='{.items[0].metadata.name}')
+
+kubectl rollout restart deployment "$DEPLOYMENT" -n envoy-gateway-system
+kubectl rollout status deployment "$DEPLOYMENT" -n envoy-gateway-system --timeout=3m
+```
+
+예상 결과:
+
+- 새 data plane Pod가 생성된다.
+- `ai-gateway-extproc` 컨테이너 env에 `MEMORY_POC_MARKER=gateway-config-v05`가 보인다.
+- resources에 requests/limits가 보인다.
 
 ## `x-ai-eg-model` 헤더 누락
 

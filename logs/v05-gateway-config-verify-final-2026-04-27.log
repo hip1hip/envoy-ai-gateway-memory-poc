@@ -1,0 +1,86 @@
+
+== 적용 전 data plane 상태 ==
+NAME                                                             READY   STATUS        RESTARTS   AGE     IP            NODE                     NOMINATED NODE   READINESS GATES
+envoy-default-envoy-ai-gateway-basic-21a9f8f8-6889758794-ddktc   3/3     Running       0          19s     10.244.0.11   aigw-v05-control-plane   <none>           <none>
+envoy-default-envoy-ai-gateway-basic-21a9f8f8-6b4db77b9-l8sc7    2/3     Terminating   0          3m44s   10.244.0.10   aigw-v05-control-plane   <none>           <none>
+BEFORE_POD=envoy-default-envoy-ai-gateway-basic-21a9f8f8-6889758794-ddktc
+
+== GatewayConfig 적용 ==
+gatewayconfig.aigateway.envoyproxy.io/memory-poc-gateway-config unchanged
+
+== Gateway annotation 연결 ==
+gateway.gateway.networking.k8s.io/envoy-ai-gateway-basic annotated
+
+== GatewayConfig 상태 ==
+NAME                        STATUS
+memory-poc-gateway-config   Accepted
+Name:         memory-poc-gateway-config
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
+API Version:  aigateway.envoyproxy.io/v1alpha1
+Kind:         GatewayConfig
+Metadata:
+  Creation Timestamp:  2026-04-26T20:36:54Z
+  Generation:          1
+  Resource Version:    20815
+  UID:                 f37f86ef-bfa6-4585-8fc9-774124dbe760
+Spec:
+  Ext Proc:
+    Kubernetes:
+      Env:
+        Name:   MEMORY_POC_MARKER
+        Value:  gateway-config-v05
+        Name:   MEMORY_TTL_SECONDS
+        Value:  3600
+        Name:   MEMORY_MAX_HISTORY_MESSAGES
+        Value:  20
+        Name:   REDIS_URL
+        Value:  redis://redis.ai-gateway-memory.svc.cluster.local:6379
+      Resources:
+        Limits:
+          Cpu:     250m
+          Memory:  256Mi
+        Requests:
+          Cpu:     50m
+          Memory:  64Mi
+Status:
+  Conditions:
+    Last Transition Time:  2026-04-26T20:36:54Z
+    Message:               GatewayConfig reconciled successfully
+    Reason:                Accepted
+    Status:                True
+    Type:                  Accepted
+Events:                    <none>
+
+== data plane rollout 재시작 ==
+DATAPLANE_DEPLOYMENT=envoy-default-envoy-ai-gateway-basic-21a9f8f8
+deployment.apps/envoy-default-envoy-ai-gateway-basic-21a9f8f8 restarted
+Waiting for deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" rollout to finish: 1 old replicas are pending termination...
+deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" successfully rolled out
+
+== 적용 후 data plane 상태 ==
+NAME                                                             READY   STATUS        RESTARTS   AGE   IP            NODE                     NOMINATED NODE   READINESS GATES
+envoy-default-envoy-ai-gateway-basic-21a9f8f8-54544fccfc-qtdpr   3/3     Running       0          11s   10.244.0.12   aigw-v05-control-plane   <none>           <none>
+envoy-default-envoy-ai-gateway-basic-21a9f8f8-6889758794-ddktc   3/3     Terminating   0          31s   10.244.0.11   aigw-v05-control-plane   <none>           <none>
+AFTER_POD=envoy-default-envoy-ai-gateway-basic-21a9f8f8-54544fccfc-qtdpr
+
+== ai-gateway-extproc env 확인 ==
+MEMORY_POC_MARKER=gateway-config-v05
+MEMORY_TTL_SECONDS=3600
+MEMORY_MAX_HISTORY_MESSAGES=20
+REDIS_URL=redis://redis.ai-gateway-memory.svc.cluster.local:6379
+
+== ai-gateway-extproc resources 확인 ==
+{"limits":{"cpu":"250m","memory":"256Mi"},"requests":{"cpu":"50m","memory":"64Mi"}}
+
+== 자동 검증 ==
+GatewayConfig env/resources 반영 확인 완료
+
+== 검증 기준 ==
+성공 기준:
+- GatewayConfig가 default namespace에 존재한다.
+- Gateway metadata.annotations에 aigateway.envoyproxy.io/gateway-config 값이 있다.
+- ai-gateway-extproc 컨테이너 env에 MEMORY_POC_MARKER=gateway-config-v05가 있다.
+- ai-gateway-extproc 컨테이너 resources에 requests/limits가 있다.

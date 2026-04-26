@@ -1,0 +1,20 @@
+wsl : bash: line 1: ﻿set: command not found
+At line:15 char:6
++ '@ | wsl -- bash 2>&1 | Tee-Object -FilePath logs\v05-gateway-config- ...
++      ~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (bash: line 1: ﻿set: command not found:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+DEPLOY=envoy-default-envoy-ai-gateway-basic-21a9f8f8
+deployment.apps/envoy-default-envoy-ai-gateway-basic-21a9f8f8 restarted
+Waiting for deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" rollout to finish: 1 old replicas are pending termination...
+deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" successfully rolled out
+POD=envoy-default-envoy-ai-gateway-basic-21a9f8f8-5cf86cc7fd-5lm99
+--- env ---
+MEMORY_POC_MARKER=gateway-config-v05
+MEMORY_TTL_SECONDS=3600
+MEMORY_MAX_HISTORY_MESSAGES=20
+REDIS_URL=redis://redis.ai-gateway-memory.svc.cluster.local:6379
+--- resources ---
+{"limits":{"cpu":"250m","memory":"256Mi"},"requests":{"cpu":"50m","memory":"64Mi"}}

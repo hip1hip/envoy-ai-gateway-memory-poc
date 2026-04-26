@@ -115,12 +115,17 @@ Client
 
 검토 필요:
 
-- v0.5에서 ExtProc 설정 방식
 - request body 전체 읽기와 mutation 가능 여부
 - response body 읽기와 저장 가능 여부
 - body buffering 크기 제한
 - ExtProc 장애 시 요청 실패 정책
 - Redis 장애 시 정책
+
+검증 완료:
+
+- v0.5 `GatewayConfig`의 `spec.extProc.kubernetes.env`를 통해 `REDIS_URL`, `MEMORY_TTL_SECONDS`, `MEMORY_MAX_HISTORY_MESSAGES` 같은 Memory 설정을 `ai-gateway-extproc` 컨테이너에 전달할 수 있다.
+- v0.5 `GatewayConfig`의 `spec.extProc.kubernetes.resources`를 통해 ExtProc 컨테이너 requests/limits를 설정할 수 있다.
+- 단, 기존 data plane Pod에는 즉시 반영되지 않았고 rollout restart 후 새 Pod에서 반영을 확인했다.
 
 ## Option B: Body Mutation + 외부 Memory Service
 

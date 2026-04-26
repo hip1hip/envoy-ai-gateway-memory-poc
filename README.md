@@ -23,7 +23,8 @@
    - v0.5 설치 방식과 의존성 확인
    - v0.4 manifest를 v0.5 환경에 그대로 적용해 migration 검증
    - basic scenario 기준 no-op migration 확인
-   - `GatewayConfig`, `schema.prefix`, Body Mutation, Header Mutation은 후속 기능 검증으로 분리
+   - `GatewayConfig`의 ExtProc env/resources 반영 확인
+   - `schema.prefix`, Body Mutation, Header Mutation은 후속 기능 검증으로 분리
 
 3. **Memory PoC 설계 및 구현**
    - Redis 기반 session memory 저장소 구성
@@ -62,10 +63,10 @@
 - AIServiceBackend Accepted
 - port-forward 기반 `/v1/chat/completions` HTTP 200 OK 확인
 - basic scenario 기준 v0.4 to v0.5 manifest migration은 no-op으로 확인
+- `GatewayConfig` 기반 ExtProc env/resources 반영 확인
 
 **검토 필요**
 
-- `GatewayConfig` 기반 ExtProc env/resources 실제 반영 검증
 - `schema.prefix` 기반 provider/backend manifest 작성 및 검증
 - Body Mutation / Header Mutation 동작 검증
 
@@ -89,6 +90,7 @@
 - [Troubleshooting](docs/99-troubleshooting.md)
 - [v0.4 baseline 결과 로그](logs/v04-baseline-result.md)
 - [v0.5 migration 결과 로그](logs/v05-migration-result.md)
+- [v0.5 GatewayConfig 검증 결과](logs/v05-gateway-config-result.md)
 
 ## 빠른 시작 가이드
 

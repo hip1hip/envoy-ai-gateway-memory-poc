@@ -318,15 +318,41 @@ logs/v05-migration-result.md
 
 ### GatewayConfig
 
-**검토 필요**
+**검증 완료**
 
-확인할 항목:
+검증한 항목:
 
 - `GatewayConfig` CRD의 실제 apiVersion과 kind
 - Gateway와 GatewayConfig 연결 방식
 - ExtProc container resource 설정 위치
 - ExtProc 환경변수 설정 가능 여부
 - Redis URL, TTL, max history length 같은 Memory 설정을 둘 수 있는지
+
+검증 결과:
+
+- `GatewayConfig` apiVersion은 `aigateway.envoyproxy.io/v1alpha1`이다.
+- Gateway annotation `aigateway.envoyproxy.io/gateway-config=memory-poc-gateway-config`로 GatewayConfig를 연결한다.
+- `spec.extProc.kubernetes.env`에 둔 `MEMORY_POC_MARKER`, `MEMORY_TTL_SECONDS`, `MEMORY_MAX_HISTORY_MESSAGES`, `REDIS_URL` 값이 `ai-gateway-extproc` 컨테이너 env로 반영된다.
+- `spec.extProc.kubernetes.resources`에 둔 requests/limits가 `ai-gateway-extproc` 컨테이너 resources로 반영된다.
+- 단, 이미 떠 있는 data plane Pod에는 즉시 반영되지 않았다. 로컬 검증에서는 data plane Deployment rollout restart 후 새 Pod에서 반영을 확인했다.
+
+검증 manifest:
+
+```text
+manifests/v05/gateway-config.yaml
+```
+
+검증 스크립트:
+
+```bash
+./scripts/verify-gateway-config-v05.sh
+```
+
+상세 결과:
+
+```text
+logs/v05-gateway-config-result.md
+```
 
 ### `schema.version`에서 `schema.prefix`로 전환
 
@@ -409,7 +435,6 @@ scripts/cleanup-v05.sh
 
 다음 항목은 모두 **검토 필요**다.
 
-- `GatewayConfig`를 실제 Gateway에 붙였을 때 extProc env/resources가 반영되는지
 - `schema.prefix` 기반 provider/backend manifest 작성
 - Body Mutation의 실제 제한과 동작 방식
 - Header Mutation의 실제 제한과 동작 방식
