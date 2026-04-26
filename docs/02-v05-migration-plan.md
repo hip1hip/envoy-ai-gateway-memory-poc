@@ -356,16 +356,28 @@ logs/v05-gateway-config-result.md
 
 ### `schema.version`에서 `schema.prefix`로 전환
 
-**검토 필요**
+**검증 완료**
 
 킥오프 문서 기준으로 `schema.version`은 deprecated이고 `schema.prefix` 사용이 필요하다.
 
-확인할 항목:
+확인 결과:
 
-- v0.4 manifest에서 `schema.version` 사용 위치
-- v0.5 manifest에서 `schema.prefix` 사용 위치
-- 기존 path `/v1/chat/completions`와 prefix 설정의 관계
-- 기존 client 요청 path 변경 필요 여부
+- v0.5 CRD에서 `AIServiceBackend.spec.schema.prefix` 필드를 확인했다.
+- OpenAI schema에서 `prefix: /v1`을 명시하면 backend endpoint는 `/v1/chat/completions`로 계산된다.
+- `manifests/v05/schema-prefix-backend.yaml`을 적용한 뒤 `AIServiceBackend`는 `Accepted` 상태를 유지했다.
+- 기존 client 요청 path `/v1/chat/completions`는 변경하지 않아도 HTTP 200 OK를 반환했다.
+
+검증 스크립트:
+
+```bash
+./scripts/verify-schema-prefix-v05.sh
+```
+
+상세 결과:
+
+```text
+logs/v05-schema-prefix-result.md
+```
 
 ### Body Mutation
 
@@ -435,7 +447,6 @@ scripts/cleanup-v05.sh
 
 다음 항목은 모두 **검토 필요**다.
 
-- `schema.prefix` 기반 provider/backend manifest 작성
 - Body Mutation의 실제 제한과 동작 방식
 - Header Mutation의 실제 제한과 동작 방식
 - ExtProc로 request/response body를 모두 처리하는 설정

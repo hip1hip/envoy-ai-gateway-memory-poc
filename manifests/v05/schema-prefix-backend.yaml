@@ -1,0 +1,15 @@
+# schema.prefix 검증용 AIServiceBackend manifest.
+# 목적: v0.5에서 OpenAI schema.prefix를 명시해도 기존 /v1/chat/completions 흐름이 유지되는지 확인한다.
+apiVersion: aigateway.envoyproxy.io/v1alpha1
+kind: AIServiceBackend
+metadata:
+  name: envoy-ai-gateway-basic-testupstream
+  namespace: default
+spec:
+  schema:
+    name: OpenAI
+    prefix: /v1
+  backendRef:
+    name: envoy-ai-gateway-basic-testupstream
+    kind: Backend
+    group: gateway.envoyproxy.io

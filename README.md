@@ -64,10 +64,10 @@
 - port-forward 기반 `/v1/chat/completions` HTTP 200 OK 확인
 - basic scenario 기준 v0.4 to v0.5 manifest migration은 no-op으로 확인
 - `GatewayConfig` 기반 ExtProc env/resources 반영 확인
+- `schema.prefix=/v1` 적용 후 `/v1/chat/completions` HTTP 200 OK 확인
 
 **검토 필요**
 
-- `schema.prefix` 기반 provider/backend manifest 작성 및 검증
 - Body Mutation / Header Mutation 동작 검증
 
 ### Memory PoC
@@ -91,6 +91,7 @@
 - [v0.4 baseline 결과 로그](logs/v04-baseline-result.md)
 - [v0.5 migration 결과 로그](logs/v05-migration-result.md)
 - [v0.5 GatewayConfig 검증 결과](logs/v05-gateway-config-result.md)
+- [v0.5 schema.prefix 검증 결과](logs/v05-schema-prefix-result.md)
 
 ## 빠른 시작 가이드
 

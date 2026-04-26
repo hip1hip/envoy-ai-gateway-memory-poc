@@ -1,0 +1,20 @@
+
+== schema.prefix manifest 적용 ==
+aiservicebackend.aigateway.envoyproxy.io/envoy-ai-gateway-basic-testupstream unchanged
+
+== AIServiceBackend schema 확인 ==
+{"name":"OpenAI","prefix":"/v1"}
+
+== AIServiceBackend 상태 확인 ==
+NAME                                  STATUS
+envoy-ai-gateway-basic-testupstream   Accepted
+ENVOY_SERVICE=envoy-default-envoy-ai-gateway-basic-21a9f8f8
+
+== port-forward 시작 ==
+
+== curl 검증 ==
+{"choices": [{"index": 0,"message": {"role": "assistant","content": "To be or not to be, that is the question."},"finish_reason": "stop"}],"usage": {"prompt_tokens": 1,"completion_tokens": 100,"total_tokens": 300}}
+HTTP_CODE=200
+
+== 검증 완료 ==
+schema.prefix=/v1 적용 후 /v1/chat/completions 요청이 HTTP 200을 반환했습니다.
