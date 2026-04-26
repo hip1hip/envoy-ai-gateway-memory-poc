@@ -96,6 +96,7 @@
 - [v0.5 schema.prefix 검증 결과](logs/v05-schema-prefix-result.md)
 - [v0.5 Body Mutation 검증 결과](logs/v05-body-mutation-result.md)
 - [v0.5 Header Mutation 검증 결과](logs/v05-header-mutation-result.md)
+- [ExtProc Memory 검증 계획](docs/05-extproc-memory-validation-plan.md)
 
 ## 빠른 시작 가이드
 

@@ -134,6 +134,11 @@ Client
 - Redis 조회 후 history를 병합해야 하는 핵심 memory 흐름은 ExtProc 쪽 검증을 우선해야 한다.
 - Header Mutation으로 `x-session-id` 같은 session 식별자와 `x-memory-policy` 같은 내부 정책 헤더를 backend 전달 요청에 주입할 수 있음을 확인했다.
 
+다음 검증:
+
+- custom Memory ExtProc 구현 전 `GatewayConfig`로 extProc image를 교체할 수 있는지 먼저 확인한다.
+- 상세 계획은 `docs/05-extproc-memory-validation-plan.md`에 둔다.
+
 ## Option B: Body Mutation + 외부 Memory Service
 
 **계획 / fallback 후보**
