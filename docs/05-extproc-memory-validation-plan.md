@@ -43,7 +43,7 @@ Body Mutation 검증 결과 top-level field 변경은 가능했지만, Redis 조
 
 ### Step 1. ExtProc image 교체 가능성 확인
 
-**계획**
+**검증 완료**
 
 목적:
 
@@ -62,6 +62,13 @@ logs/v05-extproc-image-result.md
 - GatewayConfig가 `Accepted` 상태다.
 - data plane rollout 후 `ai-gateway-extproc` 컨테이너 image가 지정한 값으로 바뀐다.
 - 잘못된 image를 넣었을 때 Pod가 `ImagePullBackOff`가 되는지 확인해 image override가 실제 적용됐음을 증명한다.
+
+검증 결과:
+
+- `GatewayConfig.spec.extProc.kubernetes.image`로 `ai-gateway-extproc` sidecar image가 바뀌는 것을 확인했다.
+- invalid image 적용 후 새 Pod는 `ErrImagePull` 상태가 됐다.
+- 원래 GatewayConfig로 복구 후 data plane Pod가 다시 `3/3 Running` 상태가 됐다.
+- 상세 결과는 `logs/v05-extproc-image-result.md`에 기록했다.
 
 주의:
 

@@ -67,10 +67,12 @@
 - `schema.prefix=/v1` 적용 후 `/v1/chat/completions` HTTP 200 OK 확인
 - `AIServiceBackend.spec.bodyMutation` 기반 top-level request body field 변경 확인
 - `AIGatewayRoute` backendRef Header Mutation set/remove 확인
+- `GatewayConfig.spec.extProc.kubernetes.image` 기반 ExtProc image override 확인
 
 **검토 필요**
 
 - `AIGatewayRoute.spec.rules.backendRefs[].bodyMutation` 실제 적용 조건 추가 확인
+- custom ExtProc skeleton으로 `/v1/chat/completions` pass-through 가능 여부 확인
 
 ### Memory PoC
 
@@ -97,6 +99,7 @@
 - [v0.5 Body Mutation 검증 결과](logs/v05-body-mutation-result.md)
 - [v0.5 Header Mutation 검증 결과](logs/v05-header-mutation-result.md)
 - [ExtProc Memory 검증 계획](docs/05-extproc-memory-validation-plan.md)
+- [v0.5 ExtProc image override 검증 결과](logs/v05-extproc-image-result.md)
 
 ## 빠른 시작 가이드
 

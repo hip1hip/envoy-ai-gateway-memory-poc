@@ -139,6 +139,11 @@ Client
 - custom Memory ExtProc 구현 전 `GatewayConfig`로 extProc image를 교체할 수 있는지 먼저 확인한다.
 - 상세 계획은 `docs/05-extproc-memory-validation-plan.md`에 둔다.
 
+추가 검증 완료:
+
+- `GatewayConfig.spec.extProc.kubernetes.image`로 `ai-gateway-extproc` sidecar image를 교체할 수 있음을 확인했다.
+- 따라서 Plan A인 ExtProc 기반 Memory 구현은 최소 custom ExtProc skeleton 작성 단계로 넘어갈 수 있다.
+
 ## Option B: Body Mutation + 외부 Memory Service
 
 **계획 / fallback 후보**

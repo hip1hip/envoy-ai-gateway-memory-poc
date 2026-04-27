@@ -1,0 +1,22 @@
+# ExtProc image override 검증용 GatewayConfig manifest.
+# 목적: v0.5에서 GatewayConfig로 ai-gateway-extproc 컨테이너 image를 교체할 수 있는지 확인한다.
+# 이 image는 의도적으로 존재하지 않는다. ImagePullBackOff가 발생하면 image override가 실제 반영된 것이다.
+apiVersion: aigateway.envoyproxy.io/v1alpha1
+kind: GatewayConfig
+metadata:
+  name: memory-poc-gateway-config
+  namespace: default
+spec:
+  extProc:
+    kubernetes:
+      image: registry.invalid/envoy-ai-gateway-memory-extproc:plan-a-check
+      env:
+        - name: MEMORY_POC_MARKER
+          value: gateway-config-v05-image-override
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 250m
+          memory: 256Mi
