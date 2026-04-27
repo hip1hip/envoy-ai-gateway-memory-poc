@@ -1,0 +1,116 @@
+
+== Kind image load ==
+Image: "envoy-ai-gateway-memory-extproc:v0.5.0-memory-skeleton" with ID "sha256:b5a97f27ecff133a063ae2d1e3caab6140a717a46bdfad57bc3c0dfea311fb38" not yet present on node "aigw-v05-control-plane", loading...
+DATAPLANE_DEPLOYMENT=envoy-default-envoy-ai-gateway-basic-21a9f8f8
+
+== custom Memory ExtProc 적용 ==
+gatewayconfig.aigateway.envoyproxy.io/memory-poc-gateway-config configured
+gateway.gateway.networking.k8s.io/envoy-ai-gateway-basic annotated
+deployment.apps/envoy-default-envoy-ai-gateway-basic-21a9f8f8 restarted
+Waiting for deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" rollout to finish: 1 old replicas are pending termination...
+deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" successfully rolled out
+POD=envoy-default-envoy-ai-gateway-basic-21a9f8f8-69496884cb-l8sjc
+envoy-ai-gateway-memory-extproc:v0.5.0-memory-skeleton
+
+== port-forward 시작 ==
+
+== curl 검증 ==
+HTTP/1.1 200 OK
+content-type: application/json
+testupstream-id: test
+x-model: body-mutated-model
+date: Mon, 27 Apr 2026 07:38:45 GMT
+content-length: 200
+
+{"choices": [{"index": 0,"message": {"role": "assistant","content": "You can't handle the truth!"},"finish_reason": "stop"}],"usage": {"prompt_tokens": 1,"completion_tokens": 100,"total_tokens": 300}}
+HTTP_CODE=200
+
+== ExtProc log 확인 ==
+2026/04/27 07:38:32 starting pprof server on port 6060
+time=2026-04-27T07:38:32.067Z level=INFO msg="starting external processor" version=v0.5.0 address=unix:///etc/ai-gateway-extproc-uds/run.sock configPath=/etc/filter-config/filter-config.yaml
+time=2026-04-27T07:38:32.073Z level=INFO msg="Registering processor" path=/v1/chat/completions
+time=2026-04-27T07:38:32.073Z level=INFO msg="Registering processor" path=/v1/completions
+time=2026-04-27T07:38:32.073Z level=INFO msg="Registering processor" path=/v1/embeddings
+time=2026-04-27T07:38:32.073Z level=INFO msg="Registering processor" path=/v1/responses
+time=2026-04-27T07:38:32.073Z level=INFO msg="Registering processor" path=/v1/images/generations
+time=2026-04-27T07:38:32.073Z level=INFO msg="Registering processor" path=/cohere/v2/rerank
+time=2026-04-27T07:38:32.073Z level=INFO msg="Registering processor" path=/v1/models
+time=2026-04-27T07:38:32.073Z level=INFO msg="Registering processor" path=/anthropic/v1/messages
+time=2026-04-27T07:38:32.073Z level=INFO msg="loading a new config" path=/etc/filter-config/filter-config.yaml
+time=2026-04-27T07:38:32.074Z level=INFO msg="start watching the config file" path=/etc/filter-config/filter-config.yaml interval=5s
+AI Gateway External Processor is ready
+time=2026-04-27T07:38:32.075Z level=INFO msg="starting admin server" address=[::]:1064
+time=2026-04-27T07:38:45.272Z level=INFO msg="memory poc injected dummy message" isUpstreamFilter=true original_messages=1 mutated_messages=2
+
+== test upstream log 확인 ==
+[testupstream] header "X-Envoy-External-Address": [127.0.0.1]
+[testupstream] header "X-Ai-Eg-Internal-Req-Id": [6df34fe9-ccfc-417a-80a5-077e009fac80-0c246af0-fc09-41b9-b4ec-bcabc8496b14]
+[testupstream] header "X-Forwarded-Host": [localhost:18082]
+[testupstream] header "X-Forwarded-For": [10.244.0.12]
+[testupstream] header "X-Request-Id": [6df34fe9-ccfc-417a-80a5-077e009fac80]
+[testupstream] header "X-Ai-Eg-Model": [some-cool-self-hosted-model]
+[testupstream] header "X-Ai-Eg-Original-Path": [/v1/chat/completions]
+[testupstream] header "Content-Length": [147]
+[testupstream] no expected host: got envoy-ai-gateway-basic-testupstream.default.svc.cluster.local
+[testupstream] no expected headers
+[testupstream] no non-expected headers in the request
+[testupstream] no expected testupstream-id
+[testupstream] Request body (147 bytes)
+[testupstream] no expected request body
+[testupstream] no response headers
+[testupstream] detected model in the request: body-mutated-model
+[testupstream] header "Accept": [*/*]
+[testupstream] header "Content-Type": [application/json]
+[testupstream] header "X-Forwarded-Proto": [http]
+[testupstream] header "X-Ai-Eg-Internal-Req-Id": [e64fbc10-3d4d-42c0-98c7-11dfd061b06d-952cb48d-ca3c-4daf-820b-4d398c446bce]
+[testupstream] header "X-Ai-Eg-Original-Path": [/v1/chat/completions]
+[testupstream] header "X-Ai-Eg-Model": [some-cool-self-hosted-model]
+[testupstream] header "X-Session-Id": [header-mutated-session]
+[testupstream] header "Content-Length": [147]
+[testupstream] header "User-Agent": [curl/8.5.0]
+[testupstream] header "X-Envoy-External-Address": [127.0.0.1]
+[testupstream] header "X-Forwarded-Host": [localhost:18083]
+[testupstream] header "X-Memory-Policy": [short-term]
+[testupstream] header "X-Forwarded-For": [10.244.0.12]
+[testupstream] header "X-Request-Id": [e64fbc10-3d4d-42c0-98c7-11dfd061b06d]
+[testupstream] no expected host: got envoy-ai-gateway-basic-testupstream.default.svc.cluster.local
+[testupstream] no expected headers
+[testupstream] no non-expected headers in the request
+[testupstream] no expected testupstream-id
+[testupstream] Request body (147 bytes)
+[testupstream] no expected request body
+[testupstream] no response headers
+[testupstream] detected model in the request: body-mutated-model
+[testupstream] header "Content-Type": [application/json]
+[testupstream] header "X-Ai-Eg-Internal-Req-Id": [7139adfb-722c-46d6-823c-5087fcac3c23-7b36c31c-9f16-455f-a873-18ef41977c07]
+[testupstream] header "Content-Length": [213]
+[testupstream] header "X-Forwarded-For": [10.244.0.21]
+[testupstream] header "X-Forwarded-Proto": [http]
+[testupstream] header "X-Envoy-External-Address": [127.0.0.1]
+[testupstream] header "X-Ai-Eg-Original-Path": [/v1/chat/completions]
+[testupstream] header "X-Forwarded-Host": [localhost:18084]
+[testupstream] header "X-Memory-Policy": [short-term]
+[testupstream] header "User-Agent": [curl/8.5.0]
+[testupstream] header "X-Request-Id": [7139adfb-722c-46d6-823c-5087fcac3c23]
+[testupstream] header "X-Ai-Eg-Model": [some-cool-self-hosted-model]
+[testupstream] header "X-Session-Id": [header-mutated-session]
+[testupstream] header "Accept": [*/*]
+[testupstream] no expected host: got envoy-ai-gateway-basic-testupstream.default.svc.cluster.local
+[testupstream] no expected headers
+[testupstream] no non-expected headers in the request
+[testupstream] no expected testupstream-id
+[testupstream] Request body (213 bytes)
+[testupstream] no expected request body
+[testupstream] no response headers
+[testupstream] detected model in the request: body-mutated-model
+
+== 원래 ExtProc로 복구 ==
+gatewayconfig.aigateway.envoyproxy.io/memory-poc-gateway-config configured
+deployment.apps/envoy-default-envoy-ai-gateway-basic-21a9f8f8 restarted
+Waiting for deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" rollout to finish: 1 old replicas are pending termination...
+deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" successfully rolled out
+
+== 검증 완료 ==
+custom Memory ExtProc skeleton 적용 상태에서 HTTP 200과 dummy memory injection log를 확인했습니다.

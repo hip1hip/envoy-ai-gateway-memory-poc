@@ -1,0 +1,11 @@
+
+== Kind image load ==
+Image: "envoy-ai-gateway-memory-extproc:v0.5.0-memory-skeleton" with ID "sha256:af561476055d6c7ae4022794569be60e26f8751d43ce8183f79fe2163714efe8" not yet present on node "aigw-v05-control-plane", loading...
+DATAPLANE_DEPLOYMENT=envoy-default-envoy-ai-gateway-basic-21a9f8f8
+
+== custom Memory ExtProc 적용 ==
+gatewayconfig.aigateway.envoyproxy.io/memory-poc-gateway-config configured
+gateway.gateway.networking.k8s.io/envoy-ai-gateway-basic annotated
+deployment.apps/envoy-default-envoy-ai-gateway-basic-21a9f8f8 restarted
+Waiting for deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" rollout to finish: 1 old replicas are pending termination...
+error: timed out waiting for the condition

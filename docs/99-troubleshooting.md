@@ -445,6 +445,35 @@ kubectl rollout status deployment "$DEPLOYMENT" -n envoy-gateway-system --timeou
 - `ai-gateway-extproc` 컨테이너 env에 `MEMORY_POC_MARKER=gateway-config-v05`가 보인다.
 - resources에 requests/limits가 보인다.
 
+## custom ExtProc가 `config version mismatch`로 CrashLoopBackOff
+
+증상:
+
+```text
+failed to load initial config: config version mismatch: expected "dev", got "v0.5.0"
+```
+
+가능한 원인:
+
+- Envoy AI Gateway extProc binary를 직접 `go build`로 빌드하면서 version ldflags를 넣지 않았다.
+- binary가 `dev` version으로 실행되고, controller가 생성한 config는 `v0.5.0` version이라 mismatch가 발생한다.
+
+대응:
+
+v0.5.0 tag 기준으로 build할 때 version 값을 주입한다.
+
+```bash
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build \
+  -ldflags '-X github.com/envoyproxy/ai-gateway/internal/version.version=v0.5.0-0-gb40501fe' \
+  -o out/extproc-linux-amd64 \
+  ./cmd/extproc
+```
+
+예상 결과:
+
+- ExtProc log의 version이 `v0.5.0`으로 표시된다.
+- config watcher가 정상 시작된다.
+
 ## `x-ai-eg-model` 헤더 누락
 
 증상:

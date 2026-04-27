@@ -143,6 +143,11 @@ Client
 
 - `GatewayConfig.spec.extProc.kubernetes.image`로 `ai-gateway-extproc` sidecar image를 교체할 수 있음을 확인했다.
 - 따라서 Plan A인 ExtProc 기반 Memory 구현은 최소 custom ExtProc skeleton 작성 단계로 넘어갈 수 있다.
+- Redis 없이 custom ExtProc skeleton에서 request body를 읽고 dummy memory message를 `messages` 앞에 주입하는 것까지 확인했다.
+
+다음 단계:
+
+- Redis를 붙여 `x-session-id` 기준 history 조회/저장을 구현한다.
 
 ## Option B: Body Mutation + 외부 Memory Service
 

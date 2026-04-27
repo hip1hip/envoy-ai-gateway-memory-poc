@@ -77,7 +77,7 @@ logs/v05-extproc-image-result.md
 
 ### Step 2. 최소 custom ExtProc skeleton 구현
 
-**계획**
+**검증 완료**
 
 목적:
 
@@ -102,9 +102,17 @@ docker/
 - GatewayConfig로 custom image 적용
 - `/v1/chat/completions` HTTP 200 유지
 
+검증 결과:
+
+- v0.5 upstream `ai-gateway-extproc` 소스를 기반으로 custom image를 빌드했다.
+- build 시 `internal/version.version=v0.5.0-0-gb40501fe` ldflags를 넣어 config version mismatch를 해결했다.
+- Kind cluster에 image를 load했다.
+- `GatewayConfig.spec.extProc.kubernetes.image`로 custom image를 적용했다.
+- `/v1/chat/completions` 요청이 HTTP 200 OK를 반환했다.
+
 ### Step 3. request header/body inspect
 
-**계획**
+**검증 완료**
 
 목적:
 
@@ -115,9 +123,14 @@ docker/
 - custom ExtProc log에 `x-session-id`가 기록된다.
 - request body의 `model`, `messages` 개수를 기록한다.
 
+검증 결과:
+
+- custom ExtProc log에서 request body의 `messages` 개수를 읽어 `original_messages=1`로 기록했다.
+- Header Mutation 검증 설정이 남아 있어 backend에는 `X-Session-Id: header-mutated-session`이 전달됐다.
+
 ### Step 4. request body mutation
 
-**계획**
+**검증 완료**
 
 목적:
 
@@ -127,6 +140,19 @@ docker/
 
 - backend log 또는 응답 헤더로 mutation 결과를 확인한다.
 - 기존 Body Mutation보다 세밀한 `messages` 병합 가능성을 확인한다.
+
+검증 결과:
+
+- Redis 없이 dummy system message를 `messages` 앞에 주입했다.
+- custom ExtProc log에서 `mutated_messages=2`를 확인했다.
+- test upstream log에서 request body length가 기존 147 bytes에서 213 bytes로 증가했다.
+- HTTP 200 OK가 유지됐다.
+
+상세 결과:
+
+```text
+logs/v05-memory-extproc-skeleton-result.md
+```
 
 ### Step 5. Redis 연동
 
