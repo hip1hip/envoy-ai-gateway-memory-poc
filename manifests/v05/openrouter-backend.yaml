@@ -1,0 +1,84 @@
+# OpenRouter real LLM backend for Envoy AI Gateway v0.5.
+#
+# 검증 상태:
+# - 계획: 이 manifest는 OpenRouter 단독 연결 검증용이다.
+# - 주의: API key 값은 이 파일에 넣지 않는다. `openrouter-api-key` Secret을 별도로 생성한다.
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: openrouter
+  namespace: default
+spec:
+  endpoints:
+    - fqdn:
+        hostname: openrouter.ai
+        port: 443
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: BackendTLSPolicy
+metadata:
+  name: openrouter-tls
+  namespace: default
+spec:
+  targetRefs:
+    - group: gateway.envoyproxy.io
+      kind: Backend
+      name: openrouter
+  validation:
+    wellKnownCACertificates: System
+    hostname: openrouter.ai
+---
+apiVersion: aigateway.envoyproxy.io/v1alpha1
+kind: AIServiceBackend
+metadata:
+  name: openrouter
+  namespace: default
+spec:
+  schema:
+    name: OpenAI
+    prefix: /api/v1
+  backendRef:
+    name: openrouter
+    kind: Backend
+    group: gateway.envoyproxy.io
+    namespace: default
+---
+apiVersion: aigateway.envoyproxy.io/v1alpha1
+kind: BackendSecurityPolicy
+metadata:
+  name: openrouter-api-key
+  namespace: default
+spec:
+  targetRefs:
+    - group: aigateway.envoyproxy.io
+      kind: AIServiceBackend
+      name: openrouter
+  type: APIKey
+  apiKey:
+    secretRef:
+      name: openrouter-api-key
+      namespace: default
+---
+apiVersion: aigateway.envoyproxy.io/v1alpha1
+kind: AIGatewayRoute
+metadata:
+  name: envoy-ai-gateway-basic
+  namespace: default
+spec:
+  parentRefs:
+    - name: envoy-ai-gateway-basic
+      kind: Gateway
+      group: gateway.networking.k8s.io
+  rules:
+    - matches:
+        - headers:
+            - type: Exact
+              name: x-ai-eg-model
+              value: google/gemini-2.0-flash-lite-001
+        - headers:
+            - type: Exact
+              name: x-ai-eg-model
+              value: openai/gpt-4o-mini
+      backendRefs:
+        - name: openrouter

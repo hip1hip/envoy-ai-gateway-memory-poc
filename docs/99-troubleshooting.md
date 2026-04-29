@@ -541,3 +541,66 @@ curl -i \
   }' \
   http://localhost:8080/v1/chat/completions
 ```
+
+## OpenRouter 연결 시 `No matching route found`
+
+증상:
+
+```text
+HTTP status: 404
+No matching route found. It is likely because the model specified in your request is not configured in the Gateway.
+```
+
+원인:
+
+- `AIGatewayRoute`의 `x-ai-eg-model` match 값과 request body의 `model` 값이 다르다.
+- 예를 들어 route match는 `openrouter`인데 body model은 `google/gemini-2.0-flash-lite-001`이면 라우팅되지 않는다.
+
+확인:
+
+```bash
+kubectl get aigatewayroute envoy-ai-gateway-basic -n default -o yaml
+```
+
+대응:
+
+```bash
+curl -i \
+  -H "Content-Type: application/json" \
+  -H "x-ai-eg-model: google/gemini-2.0-flash-lite-001" \
+  -d '{
+    "model": "google/gemini-2.0-flash-lite-001",
+    "messages": [
+      {
+        "role": "user",
+        "content": "안녕"
+      }
+    ]
+  }' \
+  http://localhost:18086/v1/chat/completions
+```
+
+예상 결과:
+
+- route match와 body model이 일치하면 OpenRouter backend로 라우팅된다.
+- API key와 credit이 정상이라면 HTTP `200 OK`와 OpenAI 호환 `choices` 응답을 받는다.
+
+## OpenRouter API key 노출
+
+증상:
+
+- OpenRouter API key를 채팅, 문서, Git commit, log 등에 그대로 붙여 넣었다.
+
+대응:
+
+- 노출된 key는 즉시 revoke 또는 rotate한다.
+- 새 key는 Kubernetes Secret으로만 넣고 레포에는 저장하지 않는다.
+
+```bash
+export OPENROUTER_API_KEY='새_OpenRouter_Key'
+
+kubectl create secret generic openrouter-api-key \
+  -n default \
+  --from-literal=apiKey="${OPENROUTER_API_KEY}" \
+  --dry-run=client -o yaml | kubectl apply -f -
+```

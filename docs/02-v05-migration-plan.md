@@ -419,17 +419,22 @@ logs/v05-header-mutation-result.md
 
 ### ExtProc / Memory 연계 지점
 
-**검토 필요**
+**부분 검증 완료**
 
 Memory 기능은 Gateway 자체에 내장된 기능이 아니므로 ExtProc 또는 외부 Memory Service 연계가 필요하다.
 
-확인할 항목:
+검증 완료:
 
-- v0.5에서 ExtProc 설정 방식
-- request header/body를 ExtProc에서 읽고 수정할 수 있는지
+- `GatewayConfig.spec.extProc.kubernetes.image`로 custom ExtProc image를 적용할 수 있다.
+- Redis 기반 custom ExtProc에서 `x-session-id`별 request/response history를 저장하고 다음 요청에 병합할 수 있다.
+- OpenRouter를 실제 LLM backend로 연결해 HTTP 200 응답을 받을 수 있다.
+
+검토 필요:
+
 - response body를 ExtProc에서 읽고 Redis에 저장할 수 있는지
 - ExtProc 장애 시 요청 실패 정책
 - Redis 장애 시 fail-fast 또는 fallback 정책
+- OpenRouter 실제 LLM backend와 Redis Memory ExtProc를 결합한 자연어 memory 시연
 
 ## 스크립트
 
