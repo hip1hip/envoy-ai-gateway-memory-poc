@@ -1,0 +1,49 @@
+
+== 전제 조건 확인 ==
+
+== Redis / OpenRouter / Memory ExtProc 적용 ==
+namespace/ai-gateway-memory unchanged
+deployment.apps/redis unchanged
+service/redis unchanged
+deployment.apps/redis condition met
+0
+backend.gateway.envoyproxy.io/openrouter unchanged
+backendtlspolicy.gateway.networking.k8s.io/openrouter-tls unchanged
+aiservicebackend.aigateway.envoyproxy.io/openrouter unchanged
+backendsecuritypolicy.aigateway.envoyproxy.io/openrouter-api-key unchanged
+aigatewayroute.aigateway.envoyproxy.io/envoy-ai-gateway-basic configured
+gatewayconfig.aigateway.envoyproxy.io/memory-poc-gateway-config configured
+
+== Memory ExtProc image 반영 ==
+gateway.gateway.networking.k8s.io/envoy-ai-gateway-basic annotated
+deployment.apps/envoy-default-envoy-ai-gateway-basic-21a9f8f8 restarted
+Waiting for deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" rollout to finish: 1 old replicas are pending termination...
+deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" successfully rolled out
+POD=envoy-default-envoy-ai-gateway-basic-21a9f8f8-9f8b878dd-7dbsw
+envoy-ai-gateway-memory-extproc:v0.5.0-memory-skeleton
+
+== port-forward 시작 ==
+
+== 첫 번째 요청: 이름 저장 ==
+
+         
+
+         
+{"id":"gen-1777449419-H2JyCbsoZcoUW60Q7wnj","object":"chat.completion","created":1777449419,"model":"google/gemini-2.0-flash-lite-001","provider":"Google","system_fingerprint":null,"choices":[{"index":0,"logprobs":null,"finish_reason":"stop","native_finish_reason":"STOP","message":{"role":"assistant","content":"알겠습니다. 홍길동님, 당신의 이름은 홍길동이라는 것을 기억하겠습니다. \n","refusal":null,"reasoning":null}}],"usage":{"prompt_tokens":15,"completion_tokens":22,"total_tokens":37,"cost":0.000007725,"is_byok":false,"prompt_tokens_details":{"cached_tokens":0,"cache_write_tokens":0,"audio_tokens":0,"video_tokens":0},"cost_details":{"upstream_inference_cost":0.000007725,"upstream_inference_prompt_cost":0.000001125,"upstream_inference_completions_cost":0.0000066},"completion_tokens_details":{"reasoning_tokens":0,"image_tokens":0,"audio_tokens":0}}}
+HTTP_CODE_1=200
+
+== 두 번째 요청: 이름 회상 ==
+
+         
+{"id":"gen-1777449420-ZgbSogPRT6eorpd6lQB9","object":"chat.completion","created":1777449420,"model":"google/gemini-2.0-flash-lite-001","provider":"Google","system_fingerprint":null,"choices":[{"index":0,"logprobs":null,"finish_reason":"stop","native_finish_reason":"STOP","message":{"role":"assistant","content":"홍길동\n","refusal":null,"reasoning":null}}],"usage":{"prompt_tokens":48,"completion_tokens":4,"total_tokens":52,"cost":0.0000048,"is_byok":false,"prompt_tokens_details":{"cached_tokens":0,"cache_write_tokens":0,"audio_tokens":0,"video_tokens":0},"cost_details":{"upstream_inference_cost":0.0000048,"upstream_inference_prompt_cost":0.0000036,"upstream_inference_completions_cost":0.0000012},"completion_tokens_details":{"reasoning_tokens":0,"image_tokens":0,"audio_tokens":0}}}
+HTTP_CODE_2=200
+
+== Redis 저장 확인 ==
+[{"role":"user","content":"내 이름은 홍길동입니다. 이 사실을 기억해줘."},{"role":"assistant","content":"알겠습니다. 홍길동님, 당신의 이름은 홍길동이라는 것을 기억하겠습니다. \n"},{"role":"user","content":"내 이름이 뭐야? 이름만 짧게 답해줘."},{"role":"assistant","content":"홍길동\n"}]
+3599
+
+== 검증 완료 ==
+OpenRouter 실제 LLM이 Redis short-term memory 내용을 반영해 홍길동을 응답했다.
+현재 클러스터에는 OpenRouter route와 Memory ExtProc가 적용된 상태로 남아 있다.

@@ -71,11 +71,12 @@
 - custom Memory ExtProc skeleton 기반 request body inspect/mutation 확인
 - Redis 기반 session history 저장/조회/병합 확인
 - OpenRouter 실제 LLM backend 연결 및 HTTP 200 응답 확인
+- OpenRouter 실제 LLM과 Redis Memory ExtProc 결합 후 `홍길동` 회상 응답 확인
 
 **검토 필요**
 
 - `AIGatewayRoute.spec.rules.backendRefs[].bodyMutation` 실제 적용 조건 추가 확인
-- OpenRouter와 Redis Memory ExtProc를 결합한 자연어 memory 응답 확인
+- 장애/fallback 정책과 발표용 시연 절차 정리
 
 ### Memory PoC
 
@@ -106,6 +107,7 @@
 - [v0.5 Memory ExtProc skeleton 검증 결과](logs/v05-memory-extproc-skeleton-result.md)
 - [v0.5 Redis Memory 검증 결과](logs/v05-redis-memory-result.md)
 - [v0.5 OpenRouter 실제 LLM 검증 결과](logs/v05-openrouter-result.md)
+- [v0.5 OpenRouter + Redis Memory 검증 결과](logs/v05-openrouter-memory-result.md)
 
 ## 빠른 시작 가이드
 
