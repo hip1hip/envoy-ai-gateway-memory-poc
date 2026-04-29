@@ -474,6 +474,40 @@ GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build \
 - ExtProc log의 version이 `v0.5.0`으로 표시된다.
 - config watcher가 정상 시작된다.
 
+## Redis Memory 검증은 성공했지만 응답이 이름을 기억하지 않음
+
+증상:
+
+```text
+요청: 내 이름이 뭐야?
+응답: 홍길동입니다가 아닌 test upstream 고정 문장
+```
+
+원인:
+
+- 현재 backend는 실제 LLM이 아니라 test upstream이다.
+- test upstream은 request `messages` 내용을 이해해서 답하지 않는다.
+- 따라서 Redis history 병합이 성공해도 자연어 응답은 memory-aware하게 바뀌지 않는다.
+
+확인:
+
+```bash
+kubectl exec -n ai-gateway-memory deploy/redis -- \
+  redis-cli get memory:chat:demo-session-redis-1
+
+kubectl logs -n envoy-gateway-system "$POD" -c ai-gateway-extproc --tail=120
+```
+
+성공 기준:
+
+- Redis에 user/assistant history가 저장된다.
+- ExtProc log에 `memory poc merged redis history`가 보인다.
+- HTTP 200 OK가 유지된다.
+
+대응:
+
+- 실제 자연어 memory 시연은 실제 LLM Provider 또는 memory-aware test backend로 진행한다.
+
 ## `x-ai-eg-model` 헤더 누락
 
 증상:

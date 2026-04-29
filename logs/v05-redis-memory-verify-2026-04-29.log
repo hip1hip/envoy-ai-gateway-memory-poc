@@ -1,0 +1,66 @@
+
+== Redis 준비 확인 ==
+deployment.apps/redis condition met
+0
+
+== Kind image load ==
+Image: "envoy-ai-gateway-memory-extproc:v0.5.0-memory-skeleton" with ID "sha256:31c21ad4e17d990cd122558c5c17b567a85bc2d9caf2ae5b1926034be5d35e7c" not yet present on node "aigw-v05-control-plane", loading...
+DATAPLANE_DEPLOYMENT=envoy-default-envoy-ai-gateway-basic-21a9f8f8
+
+== Redis Memory ExtProc 적용 ==
+gatewayconfig.aigateway.envoyproxy.io/memory-poc-gateway-config configured
+gateway.gateway.networking.k8s.io/envoy-ai-gateway-basic annotated
+deployment.apps/envoy-default-envoy-ai-gateway-basic-21a9f8f8 restarted
+Waiting for deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" rollout to finish: 1 old replicas are pending termination...
+deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" successfully rolled out
+POD=envoy-default-envoy-ai-gateway-basic-21a9f8f8-649cfb94b5-jh8rf
+envoy-ai-gateway-memory-extproc:v0.5.0-memory-skeleton
+
+== port-forward 시작 ==
+
+== 첫 번째 요청: Redis 저장 ==
+{"choices": [{"index": 0,"message": {"role": "assistant","content": "The quick brown fox jumps over the lazy dog."},"finish_reason": "stop"}],"usage": {"prompt_tokens": 1,"completion_tokens": 100,"total_tokens": 300}}
+HTTP_CODE_1=200
+
+== Redis 저장 확인 ==
+[{"role":"user","content":"내 이름은 홍길동이야"},{"role":"assistant","content":"The quick brown fox jumps over the lazy dog."}]
+3599
+
+== 두 번째 요청: Redis history 병합 ==
+{"choices": [{"index": 0,"message": {"role": "assistant","content": "I am the master of my fate."},"finish_reason": "stop"}],"usage": {"prompt_tokens": 1,"completion_tokens": 100,"total_tokens": 300}}
+HTTP_CODE_2=200
+
+== Redis 최종 history 확인 ==
+[{"role":"user","content":"내 이름은 홍길동이야"},{"role":"assistant","content":"The quick brown fox jumps over the lazy dog."},{"role":"user","content":"내 이름이 뭐야?"},{"role":"assistant","content":"I am the master of my fate."}]
+3599
+
+== ExtProc log 확인 ==
+time=2026-04-29T06:53:01.696Z level=INFO msg="starting external processor" version=v0.5.0 address=unix:///etc/ai-gateway-extproc-uds/run.sock configPath=/etc/filter-config/filter-config.yaml
+2026/04/29 06:53:01 starting pprof server on port 6060
+time=2026-04-29T06:53:01.700Z level=INFO msg="Registering processor" path=/v1/chat/completions
+time=2026-04-29T06:53:01.700Z level=INFO msg="Registering processor" path=/v1/completions
+time=2026-04-29T06:53:01.700Z level=INFO msg="Registering processor" path=/v1/embeddings
+time=2026-04-29T06:53:01.700Z level=INFO msg="Registering processor" path=/v1/responses
+time=2026-04-29T06:53:01.700Z level=INFO msg="Registering processor" path=/v1/images/generations
+time=2026-04-29T06:53:01.700Z level=INFO msg="Registering processor" path=/cohere/v2/rerank
+time=2026-04-29T06:53:01.700Z level=INFO msg="Registering processor" path=/v1/models
+time=2026-04-29T06:53:01.700Z level=INFO msg="Registering processor" path=/anthropic/v1/messages
+time=2026-04-29T06:53:01.700Z level=INFO msg="loading a new config" path=/etc/filter-config/filter-config.yaml
+time=2026-04-29T06:53:01.700Z level=INFO msg="start watching the config file" path=/etc/filter-config/filter-config.yaml interval=5s
+AI Gateway External Processor is ready
+time=2026-04-29T06:53:01.701Z level=INFO msg="starting admin server" address=[::]:1064
+time=2026-04-29T06:53:15.078Z level=INFO msg="memory poc redis history empty" isUpstreamFilter=true session_id=demo-session-redis-1
+time=2026-04-29T06:53:15.185Z level=INFO msg="memory poc stored redis history" isUpstreamFilter=true session_id=demo-session-redis-1 stored_messages=2 added_user_messages=1 added_assistant_messages=1
+time=2026-04-29T06:53:15.736Z level=INFO msg="memory poc merged redis history" isUpstreamFilter=true session_id=demo-session-redis-1 history_messages=2 request_messages=1 mutated_messages=3
+time=2026-04-29T06:53:15.743Z level=INFO msg="memory poc stored redis history" isUpstreamFilter=true session_id=demo-session-redis-1 stored_messages=4 added_user_messages=1 added_assistant_messages=1
+
+== 원래 ExtProc로 복구 ==
+gatewayconfig.aigateway.envoyproxy.io/memory-poc-gateway-config configured
+deployment.apps/envoy-default-envoy-ai-gateway-basic-21a9f8f8 restarted
+Waiting for deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" rollout to finish: 1 old replicas are pending termination...
+deployment "envoy-default-envoy-ai-gateway-basic-21a9f8f8" successfully rolled out
+
+== 검증 완료 ==
+Redis 저장/조회/history 병합과 HTTP 200 유지 확인 완료

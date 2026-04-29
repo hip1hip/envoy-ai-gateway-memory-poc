@@ -149,6 +149,13 @@ Client
 
 - Redis를 붙여 `x-session-id` 기준 history 조회/저장을 구현한다.
 
+Redis 연동 검증 완료:
+
+- `memory:chat:{x-session-id}` key로 session history를 저장했다.
+- 첫 요청 후 user/assistant message가 Redis에 저장됐다.
+- 두 번째 요청에서 Redis history를 조회해 `messages` 앞에 병합했다.
+- TTL과 최대 message 개수 설정은 환경변수로 제어한다.
+
 ## Option B: Body Mutation + 외부 Memory Service
 
 **계획 / fallback 후보**

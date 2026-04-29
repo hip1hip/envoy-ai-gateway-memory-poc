@@ -156,7 +156,7 @@ logs/v05-memory-extproc-skeleton-result.md
 
 ### Step 5. Redis 연동
 
-**계획**
+**검증 완료**
 
 목적:
 
@@ -167,6 +167,16 @@ logs/v05-memory-extproc-skeleton-result.md
 - 첫 요청 후 Redis key가 생성된다.
 - 두 번째 요청에서 같은 session history가 조회된다.
 - TTL과 sliding window가 동작한다.
+
+검증 결과:
+
+- Redis Pod/Service를 `ai-gateway-memory` namespace에 배포했다.
+- Redis key는 `memory:chat:{x-session-id}` 형식을 사용했다.
+- 첫 요청 후 Redis에 user/assistant message 2개가 저장됐다.
+- 두 번째 요청에서 Redis history 2개를 조회하고 request `messages` 앞에 병합했다.
+- 두 번째 응답 후 Redis에는 총 4개 message가 저장됐다.
+- `MEMORY_TTL_SECONDS=3600` 기준 TTL이 설정됐다.
+- 상세 결과는 `logs/v05-redis-memory-result.md`에 기록했다.
 
 ## 권장 다음 액션
 

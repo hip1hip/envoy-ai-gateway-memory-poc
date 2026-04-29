@@ -1,0 +1,29 @@
+# Redis 연동 Memory ExtProc image 적용용 GatewayConfig.
+# 목적: x-session-id 기준 short-term memory 조회/저장과 messages 병합을 검증한다.
+apiVersion: aigateway.envoyproxy.io/v1alpha1
+kind: GatewayConfig
+metadata:
+  name: memory-poc-gateway-config
+  namespace: default
+spec:
+  extProc:
+    kubernetes:
+      image: envoy-ai-gateway-memory-extproc:v0.5.0-memory-skeleton
+      env:
+        - name: MEMORY_POC_MARKER
+          value: memory-extproc-redis
+        - name: MEMORY_POC_REDIS_ENABLED
+          value: "true"
+        - name: REDIS_URL
+          value: redis://redis.ai-gateway-memory.svc.cluster.local:6379
+        - name: MEMORY_TTL_SECONDS
+          value: "3600"
+        - name: MEMORY_MAX_HISTORY_MESSAGES
+          value: "20"
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 250m
+          memory: 256Mi
